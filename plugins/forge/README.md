@@ -10,39 +10,39 @@ Use forge when you need to:
 - **Untangle a complex system** — Legacy systems, big ball of mud, unclear boundaries
 - **Align the team** — Get developers, domain experts, and stakeholders on the same page
 - **Design event-driven architectures** — Model commands, events, aggregates, and projections
-- **Identify failure modes** — Understand what can go wrong and how to build resilience
+- **Stress-test an architecture** — Discover hidden weaknesses through random simulation of the business environment
 - **Define service boundaries** — Split monoliths or design microservices with clear contexts
 
 ## Available Commands
 
 ### Ideation & Definition
 
-| Command | Purpose | When to Use |
-|---------|---------|-------------|
-| `/brainstorm` | Multi-agent ideation with strategic, pragmatic, and creative perspectives | Starting with a vague idea, exploring possibilities, getting unstuck |
-| `/define` | Product definition facilitation — transform fuzzy ideas into clear product specs | New product/feature from scratch, validating concepts before implementation |
+| Command       | Purpose                                                                          | When to Use                                                                 |
+| ------------- | -------------------------------------------------------------------------------- | --------------------------------------------------------------------------- |
+| `/brainstorm` | Multi-agent ideation with strategic, pragmatic, and creative perspectives        | Starting with a vague idea, exploring possibilities, getting unstuck        |
+| `/define`     | Product definition facilitation — transform fuzzy ideas into clear product specs | New product/feature from scratch, validating concepts before implementation |
 
 ### Domain Discovery
 
-| Command | Purpose | When to Use |
-|---------|---------|-------------|
-| `/discovery` | Open-ended domain exploration — understand the problem space | New project with unfamiliar domain, onboarding to existing system |
-| `/storm` | Event Storming — discover domain events, commands, and aggregates | Understanding complex business processes, identifying aggregate boundaries |
-| `/context` | Bounded Context Mapping — define service boundaries and relationships | Decomposing monoliths, designing microservices, resolving ownership conflicts |
+| Command      | Purpose                                                               | When to Use                                                                   |
+| ------------ | --------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| `/discovery` | Open-ended domain exploration — understand the problem space          | New project with unfamiliar domain, onboarding to existing system             |
+| `/storm`     | Event Storming — discover domain events, commands, and aggregates     | Understanding complex business processes, identifying aggregate boundaries    |
+| `/context`   | Bounded Context Mapping — define service boundaries and relationships | Decomposing monoliths, designing microservices, resolving ownership conflicts |
 
 ### System Design
 
-| Command | Purpose | When to Use |
-|---------|---------|-------------|
-| `/model` | Event Modeling — design full system blueprint from UI to persistence | Translating domain events into implementation specs, CQRS/event-sourced systems |
-| `/workflow` | BPMN Workflow Discovery — model business processes iteratively | Process needs fleshing out, finding the right granularity, cross-team workflows |
-| `/c4-architecture` | Generate C4 architecture documentation from codebase analysis | Documenting existing codebases, creating architecture overview for stakeholders |
+| Command            | Purpose                                                              | When to Use                                                                     |
+| ------------------ | -------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| `/model`           | Event Modeling — design full system blueprint from UI to persistence | Translating domain events into implementation specs, CQRS/event-sourced systems |
+| `/workflow`        | BPMN Workflow Discovery — model business processes iteratively       | Process needs fleshing out, finding the right granularity, cross-team workflows |
+| `/c4-architecture` | Generate C4 architecture documentation from codebase analysis        | Documenting existing codebases, creating architecture overview for stakeholders |
 
-### Production Readiness
+### Architecture Stress-Testing
 
-| Command | Purpose | When to Use |
-|---------|---------|-------------|
-| `/residuality` | Stressor analysis — identify failure modes and resilience patterns | Preparing for production, designing for high availability, post-incident reviews |
+| Command        | Purpose                                                                 | When to Use                                                                               |
+| -------------- | ----------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| `/residuality` | Residuality Theory — stress-test architecture through random simulation | Designing architecture, discovering hidden coupling, preparing for uncertain environments |
 
 ## How Forge Works
 
@@ -77,7 +77,7 @@ Forge sessions produce markdown artifacts stored in your project:
 - **BPMN workflow diagrams** (.bpmn files) modeling business processes at multiple levels
 - **C4 architecture documentation** at context, container, component, and code levels
 - **Context maps** showing bounded contexts and their relationships
-- **Stressor maps** identifying failure modes, mitigations, and resilience patterns
+- **Residuality analyses** with stressor analysis, contagion matrices, residual architecture, and empirical test
 
 ## Getting Started
 
@@ -124,9 +124,9 @@ Here's how you might use multiple commands together when building a new feature:
    └─► Output: Complete event model ready for implementation
        ↓
 6. /residuality
-   └─► Identify stressors: What if payment gateway fails? What about retries?
-   └─► Design circuit breakers, fallbacks, degradation strategies
-   └─► Output: Stressor map with mitigation patterns
+   └─► Randomly simulate the business environment through stressors
+   └─► Build contagion matrix, discover hidden coupling, achieve criticality
+   └─► Output: Residuality analysis with residual architecture and empirical test
 ```
 
 ### Alternative Paths
@@ -134,21 +134,25 @@ Here's how you might use multiple commands together when building a new feature:
 Not every project needs all commands. Here are common shorter paths:
 
 **Documenting an existing system:**
+
 ```
 /c4-architecture → Generate docs from code analysis
 ```
 
 **Modeling a specific business process:**
+
 ```
 /workflow → Discover and model BPMN diagrams iteratively
 ```
 
 **Splitting a monolith:**
+
 ```
 /discovery → /context → /residuality
 ```
 
 **Quick feature design (familiar domain):**
+
 ```
 /storm → /model
 ```
