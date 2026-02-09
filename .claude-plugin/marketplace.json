@@ -1,0 +1,26 @@
+{
+  "name": "caiokf",
+  "version": "1.0.0",
+  "description": "A collection of Claude Code plugins",
+  "author": "Caio Kinzel Filho",
+  "plugins": [
+    {
+      "id": "forge",
+      "name": "Forge",
+      "description": "Software architecture discovery and modeling toolkit",
+      "path": "../plugins/forge"
+    },
+    {
+      "id": "gitbutler",
+      "name": "GitButler",
+      "description": "GitButler integration hooks for automatic change tracking",
+      "path": "../plugins/gitbutler"
+    },
+    {
+      "name": "beads",
+      "description": "Beads issue tracking skills",
+      "version": "1.0.0",
+      "source": "../plugins/beads"
+    }
+  ]
+}
