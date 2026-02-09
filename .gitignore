@@ -9,3 +9,6 @@
 # IDE
 .idea/
 .vscode/
+
+# Reference material
+residuality-theory.txt

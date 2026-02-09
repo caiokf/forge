@@ -1,7 +1,6 @@
 ---
 name: bpmn
 description: Generates, reads, updates, and validates BPMN 2.0 XML diagram files (.bpmn) compatible with Camunda, Bizagi, and Signavio. Use when creating business process diagrams, documenting workflows, converting event storms to BPMN format, or validating existing .bpmn files for correctness.
-tags: [bpmn, workflow, process, diagram, xml]
 ---
 
 # /bpmn — BPMN 2.0 File Operations

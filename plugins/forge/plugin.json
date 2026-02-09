@@ -1,8 +1,0 @@
-{
-  "id": "forge",
-  "name": "Forge",
-  "version": "1.0.0",
-  "description": "Software architecture discovery and modeling toolkit",
-  "commands": ["storm", "model", "residuality", "context", "discovery", "workflow", "c4-architecture", "define", "brainstorm"],
-  "skills": ["bpmn", "c4"]
-}

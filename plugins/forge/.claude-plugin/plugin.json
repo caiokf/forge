@@ -1,0 +1,8 @@
+{
+  "name": "forge",
+  "version": "1.0.0",
+  "description": "Software architecture discovery and modeling toolkit",
+  "author": {
+    "name": "Caio Kinzel Filho"
+  }
+}
