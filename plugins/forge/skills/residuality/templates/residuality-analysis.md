@@ -53,12 +53,15 @@
 | 4   |                                                |                                                |           |                                                |                                        |
 | 5   |                                                |                                                |           |                                                |                                        |
 
+> **Survives is strictly Yes or No.** Document friction, manual workarounds, or partial survival in the Residue column — not as "Yes*" or "Maybe".
+
 ### Stressor Sources Explored
 
 - [ ] Concepts and abstractions (Customer, Order, Product — what if they're wrong?)
 - [ ] Actors and relationships (roles change, new actors appear)
 - [ ] Flows (direction reversal, new flows, volume changes)
 - [ ] Business context (competitors, regulation, market shifts, M&A)
+- [ ] PESTLE sweep (Political, Economic, Social, Technological, Legal, Environmental)
 - [ ] Technology context (component failures, data issues, deployment errors)
 
 ### Criticality Indicators
@@ -135,6 +138,18 @@
 | [Trade-off] | [One approach] | [Other approach] | [Which] | [Why]     |
 |             |                |                  |         |           |
 
+### Residual Incidence Matrix
+
+> Same stressors, new components. Compare with the naïve matrix (Section 4) to verify K reduction.
+
+|               | [New Comp A] | [New Comp B] | [New Comp C] | ... | Row Total |
+| ------------- | ------------ | ------------ | ------------ | --- | --------- |
+| Stressor 1    |              |              |              |     |           |
+| Stressor 2    |              |              |              |     |           |
+| **Col Total** |              |              |              |     |           |
+
+**Naïve mean vulnerability:** [___]% | **Residual mean vulnerability:** [___]%
+
 ---
 
 ## 6. Empirical Test
@@ -142,6 +157,8 @@
 > New stressors never used during analysis, applied to both architectures. Measures actual improvement.
 
 ### Test Stressors
+
+> **Strict binary Yes/No only.** No "Maybe" or partial answers — the Ri calculation requires clean counts.
 
 | #   | Stressor       | Naïve Survives? | Residual Survives? |
 | --- | -------------- | --------------- | ------------------ |
@@ -199,6 +216,23 @@
 - [Questions that emerged but weren't resolved]
 - [Areas that need deeper stressor analysis]
 - [Stakeholders who should be consulted]
+
+---
+
+## Facilitator Log
+
+> Key prompts used and example exchanges. Makes the session reproducible and educational.
+
+### Example Exchanges
+
+| Phase | Facilitator Prompt                         | Participant Response (summary)       | Outcome                  |
+| ----- | ------------------------------------------ | ------------------------------------ | ------------------------ |
+| [#]   | [The prompt that triggered the discovery]  | [What the participant said/realized] | [Stressor/residue found] |
+|       |                                            |                                      |                          |
+
+### Redirections & Recovery
+
+- [Moment where participants were redirected, e.g., from technical to business stressors, and what it unblocked]
 
 ---
 

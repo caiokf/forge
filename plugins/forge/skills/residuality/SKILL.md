@@ -60,6 +60,7 @@ This distinction is critical. Do not conflate stressors with traditional concept
 2. All stressors go in the list, no matter how unlikely
 3. Use as many sources as possible
 4. Stress business concepts and abstractions, not just infrastructure
+5. Survives is strictly binary — Yes or No. Document friction, manual effort, or partial survival in the Residue column, not as a qualified "Yes*" or "Maybe"
 
 ## Session Flow
 
@@ -78,7 +79,7 @@ The core of the session. Randomly simulate the business environment by generatin
 - **Concepts and abstractions** — What if "Customer" means something different? What if "Order" has properties we haven't imagined?
 - **Actors and relationships** — What if an actor's role changes? What if a new actor appears?
 - **Flows** — What if a flow reverses? What if a flow that doesn't exist today needs to?
-- **Business context** — Competitors, regulations, market shifts, mergers, growth
+- **Business context** — Use PESTLE (Political, Economic, Social, Technological, Legal, Environmental) as a sweep: antitrust action, recession, cultural shifts, supply chain disruption, regulatory change, climate impact. Also: competitors, market shifts, mergers, growth
 - **Technology context** — Only after business stressors are thoroughly explored
 
 For each stressor, identify:
@@ -112,9 +113,11 @@ Use the matrix to optimize N, K, and P toward criticality.
 
 Compress all residues into a single coherent architecture. Apply FMEA (Failure Mode Effects Analysis) and ATAM (Architecture Trade-off Analysis Method) as final engineering checks. The residual architecture should make it easy for the software to move between residues as the business context shifts between attractors.
 
+Build a **residual incidence matrix** — the same stressors against the new components — to verify that mean vulnerability has decreased. Comparing the naïve matrix (Phase 4) with the residual matrix demonstrates the K reduction visually.
+
 ### Phase 6: Empirical Test (2-3 exchanges)
 
-Generate a NEW list of stressors never used in the analysis. Apply them to both the naïve and residual architectures. Count survivors. Calculate the Residual Index:
+Generate a NEW list of stressors never used in the analysis. Apply them to both the naïve and residual architectures. Count survivors using strict binary Yes/No — no "Maybe" or partial answers. Calculate the Residual Index:
 
 **Ri = (Y - X) / S** where -1 ≤ Ri ≤ 1
 
@@ -144,11 +147,12 @@ Generate a markdown document using `templates/residuality-analysis.md` containin
 2. Flow analysis (actors and flows)
 3. Stressor analysis table (stressor → attractor → residue → changes)
 4. Criticality assessment
-5. Incidence/contagion matrix
+5. Incidence/contagion matrix (naïve)
 6. Hyperliminal coupling findings
-7. Residual architecture description
+7. Residual architecture description with residual incidence matrix
 8. Empirical test results (Residual Index)
-9. Heuristics and next steps
+9. Facilitator log — key prompts used and example exchanges
+10. Heuristics and next steps
 
 ## References
 

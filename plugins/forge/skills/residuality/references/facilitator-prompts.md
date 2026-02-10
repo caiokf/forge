@@ -86,12 +86,21 @@ FACILITATOR PROMPTS:
 
 ### Stressing the Business Context
 
-This is where lateral thinking matters most. The architect must engage with the wider world the software lives in.
+This is where lateral thinking matters most. The architect must engage with the wider world the software lives in. Use a **PESTLE sweep** to ensure coverage across all dimensions, then go lateral.
 
 ```
-FACILITATOR PROMPTS:
+FACILITATOR PROMPTS (PESTLE sweep):
+- POLITICAL: "What if antitrust action forces structural changes? What if lobbying from incumbents changes the rules?"
+- ECONOMIC: "What if a recession cuts discretionary spending by 40%? What if a currency collapse hits a key market?"
+- SOCIAL: "What if cultural attitudes toward this product shift? What if a generation of users expects something fundamentally different?"
+- TECHNOLOGICAL: "What if an AI competitor automates the core value proposition overnight?"
+- LEGAL: "What if a class-action lawsuit changes the liability model? What if employment law reclassifies key actors?"
+- ENVIRONMENTAL: "What if climate regulation adds cost to every transaction? What if supply chain disruption from extreme weather becomes permanent?"
+```
+
+```
+FACILITATOR PROMPTS (lateral):
 - "What if a competitor drops their price by 50%?"
-- "What if new government regulation changes the rules?"
 - "What if the company gets acquired? Or acquires someone else?"
 - "What if the market this product serves simply disappears?"
 - "What if the system goes viral and needs to serve 100x more users in a market you didn't expect?"
@@ -188,6 +197,18 @@ FACILITATOR PROMPTS:
 - "Describe the residual architecture. How is it different from the naïve architecture?"
 ```
 
+### Residual Incidence Matrix
+
+After defining the residual architecture, rebuild the incidence matrix with the new components. This provides visual proof that K has been reduced.
+
+```
+FACILITATOR PROMPTS:
+- "Let's rebuild the matrix with our new components. Same stressors, new columns."
+- "What's the new mean vulnerability? Has it dropped from the naïve matrix?"
+- "Are there any stressors that still hit more than 60% of new components? Those need more isolation."
+- "Compare the two matrices side by side — where did we gain the most isolation?"
+```
+
 ---
 
 ## Phase 6: Empirical Test
@@ -202,6 +223,20 @@ FACILITATOR PROMPTS:
 - "Residual Index = (Y - X) / S. Is it positive? That's our evidence of improvement."
 - "Are there any new stressors that expose weaknesses we should go back and address?"
 - "If Ri is approaching 0 across iterations, the architecture has reached a useful level of criticality."
+```
+
+---
+
+## Facilitator Log
+
+Record key facilitation moments in the output artifact. This makes the session reproducible and educational for future participants.
+
+```
+WHAT TO RECORD:
+- 2-3 example exchanges showing how a stressor was generated (prompt → participant response → attractor/residue)
+- Any moments where participants were redirected (e.g., from technical to business stressors)
+- Recovery prompts that were used and what they unblocked
+- The prompt that triggered the first moment of criticality (looping)
 ```
 
 ---
