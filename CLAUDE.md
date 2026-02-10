@@ -5,17 +5,16 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Architecture
 
 ```
-.claude-plugin/marketplace.json       # Marketplace index (source of truth for versions)
-plugins/
-  {plugin}/
-    .claude-plugin/plugin.json        # Plugin manifest (version here takes priority)
-    commands/*.md                     # Command definitions (lean triggers referencing skills)
-    skills/{skill}/SKILL.md           # Skill definitions (~1500 words, progressive disclosure)
-    skills/{skill}/references/        # Detailed docs loaded on demand
-    skills/{skill}/templates/         # Output templates for session artifacts
-    hooks/hooks.json                  # Hook configuration
-    hooks/*.sh                        # Hook scripts
-    agents/*.md                       # Agent definitions
+.claude-plugin/
+  marketplace.json                    # Marketplace index (source of truth for versions)
+  plugin.json                         # Plugin manifest (version here takes priority)
+commands/*.md                         # Command definitions (lean triggers referencing skills)
+skills/{skill}/SKILL.md               # Skill definitions (~1500 words, progressive disclosure)
+skills/{skill}/references/            # Detailed docs loaded on demand
+skills/{skill}/templates/             # Output templates for session artifacts
+hooks/hooks.json                      # Hook configuration
+hooks/*.sh                            # Hook scripts
+agents/*.md                           # Agent definitions
 ```
 
 ### Commands vs Skills
@@ -26,12 +25,12 @@ plugins/
 
 ## Plugin Development
 
-### Creating a Plugin
+### Plugin Structure
 
-1. Create directory structure: `plugins/{name}/.claude-plugin/plugin.json`
-2. Add skills in `plugins/{name}/skills/{skill}/SKILL.md`
-3. Add commands in `plugins/{name}/commands/{command}.md`
-4. Register in `.claude-plugin/marketplace.json`
+1. Plugin manifest lives at `.claude-plugin/plugin.json`
+2. Skills live in `skills/{skill}/SKILL.md`
+3. Commands live in `commands/{command}.md`
+4. Marketplace index at `.claude-plugin/marketplace.json` points to `./`
 
 ### Skill Frontmatter (YAML between `---` markers)
 
@@ -85,8 +84,8 @@ jq -n '{
 
 Version can be set in either file; `plugin.json` takes priority if both are set:
 
-- `.claude-plugin/marketplace.json` - marketplace-level plugin versions
-- `plugins/{name}/.claude-plugin/plugin.json` - individual plugin version (takes priority)
+- `.claude-plugin/marketplace.json` - marketplace-level plugin version
+- `.claude-plugin/plugin.json` - plugin manifest version (takes priority)
 
 Use `/release` skill to manage versions and changelog.
 
@@ -103,5 +102,5 @@ Use `/release` skill to manage versions and changelog.
 Test plugins locally:
 
 ```bash
-claude --plugin-dir /path/to/forge/plugins/{plugin}
+claude --plugin-dir /path/to/forge
 ```

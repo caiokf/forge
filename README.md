@@ -33,28 +33,29 @@ Start with `/discovery` to explore the problem space, `/define` to sharpen the p
 
 ## Installation
 
-```bash
-claude plugin add github:caiokf/forge/plugins/forge
+```
+/plugin marketplace add caiokf/forge
+/plugin install forge
 ```
 
 ## Project Structure
 
 ```
-.claude-plugin/marketplace.json          # Plugin marketplace index
-plugins/forge/
-  .claude-plugin/plugin.json             # Plugin manifest (v1.0.0)
-  commands/*.md                          # Slash command definitions
-  skills/
-    brainstorming/                       # Multi-agent ideation
-    domain-discovery/                    # Open-ended domain exploration
-    product-definition/                  # Product definition facilitation
-    event-storming/                      # Event Storming facilitation
-    event-modeling/                      # Event Modeling facilitation
-    bounded-contexts/                    # DDD context mapping
-    bpmn-workflow/                       # BPMN process discovery
-    bpmn/                                # BPMN 2.0 file operations
-    c4/                                  # C4 architecture documentation
-    residuality/                         # Residuality Theory sessions
+.claude-plugin/
+  marketplace.json                       # Marketplace index
+  plugin.json                            # Plugin manifest (v1.0.0)
+commands/*.md                            # Slash command definitions
+skills/
+  brainstorming/                         # Multi-agent ideation
+  domain-discovery/                      # Open-ended domain exploration
+  product-definition/                    # Product definition facilitation
+  event-storming/                        # Event Storming facilitation
+  event-modeling/                        # Event Modeling facilitation
+  bounded-contexts/                      # DDD context mapping
+  bpmn-workflow/                         # BPMN process discovery
+  bpmn/                                  # BPMN 2.0 file operations
+  c4/                                    # C4 architecture documentation
+  residuality/                           # Residuality Theory sessions
 ```
 
 Each skill contains a `SKILL.md` with domain knowledge, `references/` for detailed prompts, and `templates/` for session output scaffolding.
