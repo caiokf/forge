@@ -1,10 +1,6 @@
 # Forge
 
-A collection of [Claude Code](https://claude.ai/code) plugins for software architecture discovery and modeling.
-
-## Forge Plugin
-
-The main plugin is a toolkit of interactive facilitation skills that guide you through architecture and domain modeling techniques — from early discovery through to detailed system design.
+A [Claude Code](https://claude.ai/code) plugin for software architecture discovery and modeling, a tollkit with interactive facilitation skills that guide you through architecture and domain modeling techniques — from early discovery through to detailed system design.
 
 ### Commands
 
