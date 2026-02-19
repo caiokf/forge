@@ -1,9 +1,9 @@
 ---
-name: context
+name: bounded-contexts
 description: Facilitates a Domain-Driven Design bounded context mapping session to identify, define, and relate contexts within a domain.
 ---
 
-# /context — Bounded Context Mapping Facilitation
+# /bounded-contexts — Bounded Context Mapping Facilitation
 
 Facilitate a Bounded Context Mapping session to identify, define, and relate bounded contexts within a domain.
 
@@ -20,5 +20,5 @@ Facilitate a Bounded Context Mapping session to identify, define, and relate bou
 | Command      | When to Use Instead                              |
 | ------------ | ------------------------------------------------ |
 | `/discovery` | Exploring a domain before mapping contexts       |
-| `/storm`     | Need to discover domain events within a context  |
-| `/model`     | Need to design a system within a bounded context |
+| `/event-storming` | Need to discover domain events within a context  |
+| `/event-modeling` | Need to design a system within a bounded context |

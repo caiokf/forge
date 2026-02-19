@@ -136,7 +136,7 @@
 
 ## Recommended Next Steps
 
-- [ ] Deep dive into [aggregate/area] with `/storm`
-- [ ] Design system with `/model`
-- [ ] Map bounded contexts with `/context`
+- [ ] Deep dive into [aggregate/area] with `/event-storming`
+- [ ] Design system with `/event-modeling`
+- [ ] Map bounded contexts with `/bounded-contexts`
 - [ ] Analyze resilience with `/residuality`

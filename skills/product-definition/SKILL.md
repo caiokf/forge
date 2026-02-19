@@ -22,7 +22,7 @@ This skill should be used when:
 
 - Already have a clear product definition and need implementation planning → create a roadmap
 - Exploring a technical domain → use `/discovery`
-- Designing system architecture → use `/model` or `/storm`
+- Designing system architecture → use `/event-modeling` or `/event-storming`
 - Need a detailed PRD with specs → do that after `/define`
 
 ## Core Principles

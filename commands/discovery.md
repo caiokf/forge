@@ -19,14 +19,14 @@ Facilitate an open-ended Domain Discovery session to explore and understand a pr
 
 | Finding                               | Recommended Next Step |
 | ------------------------------------- | --------------------- |
-| Complex workflows with many events    | `/storm`              |
-| Need to design a system end-to-end    | `/model`              |
-| Multiple teams or systems interacting | `/context`            |
+| Complex workflows with many events    | `/event-storming`     |
+| Need to design a system end-to-end    | `/event-modeling`     |
+| Multiple teams or systems interacting | `/bounded-contexts`   |
 | Production readiness concerns         | `/residuality`        |
 
 ## Related Commands
 
 | Command   | When to Use Instead                              |
 | --------- | ------------------------------------------------ |
-| `/storm`  | Already know you want Event Storming             |
+| `/event-storming` | Already know you want Event Storming             |
 | `/define` | Exploring a product idea, not a technical domain |

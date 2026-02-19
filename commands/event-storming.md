@@ -1,9 +1,9 @@
 ---
-name: storm
+name: event-storming
 description: Facilitates an Event Storming workshop to discover domain events, commands, aggregates, policies, and bounded contexts through guided collaborative exploration.
 ---
 
-# /storm — Event Storming Facilitation
+# /event-storming — Event Storming Facilitation
 
 Facilitate an Event Storming session to discover domain events, commands, aggregates, policies, and bounded contexts in a system.
 
@@ -19,5 +19,5 @@ Facilitate an Event Storming session to discover domain events, commands, aggreg
 | Command      | When to Use Instead                                    |
 | ------------ | ------------------------------------------------------ |
 | `/discovery` | Exploring a domain before committing to Event Storming |
-| `/model`     | Translating discovered events into a system design     |
-| `/context`   | Mapping bounded contexts and team boundaries           |
+| `/event-modeling`    | Translating discovered events into a system design     |
+| `/bounded-contexts`  | Mapping bounded contexts and team boundaries           |

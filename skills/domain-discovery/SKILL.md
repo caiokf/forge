@@ -80,9 +80,9 @@ Based on discovery findings, recommend the appropriate next session:
 
 | Finding                               | Recommended Next Step              |
 | ------------------------------------- | ---------------------------------- |
-| Complex workflows with many events    | `/storm` (Event Storming)          |
-| Need to design a system end-to-end    | `/model` (Event Modeling)          |
-| Multiple teams or systems interacting | `/context` (Context Mapping)       |
+| Complex workflows with many events    | `/event-storming` (Event Storming)   |
+| Need to design a system end-to-end    | `/event-modeling` (Event Modeling)   |
+| Multiple teams or systems interacting | `/bounded-contexts` (Context Mapping)|
 | Production readiness concerns         | `/residuality` (Stressor Analysis) |
 
 ## Output Artifact

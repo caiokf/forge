@@ -20,5 +20,5 @@ Facilitate a product definition session to transform a fuzzy idea into a clear, 
 | Command      | When to Use Instead                                  |
 | ------------ | ---------------------------------------------------- |
 | `/discovery` | Exploring a technical domain, not defining a product |
-| `/storm`     | Ready to model the domain with Event Storming        |
-| `/model`     | Ready to design system architecture                  |
+| `/event-storming` | Ready to model the domain with Event Storming        |
+| `/event-modeling` | Ready to design system architecture                  |

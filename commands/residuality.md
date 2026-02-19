@@ -19,7 +19,7 @@ Facilitate a Residuality Theory session to arrive at a software architecture tha
 
 | Command      | When to Use Instead                                          |
 | ------------ | ------------------------------------------------------------ |
-| `/storm`     | Need to discover domain events before stress-testing         |
-| `/model`     | Need to design the full system blueprint first               |
-| `/context`   | Need to establish bounded contexts before architectural work |
+| `/event-storming`    | Need to discover domain events before stress-testing         |
+| `/event-modeling`    | Need to design the full system blueprint first               |
+| `/bounded-contexts`  | Need to establish bounded contexts before architectural work |
 | `/discovery` | Need to explore the problem space before architecture        |

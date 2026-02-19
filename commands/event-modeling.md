@@ -1,9 +1,9 @@
 ---
-name: model
+name: event-modeling
 description: Facilitates Event Modeling sessions to design complete system blueprints showing how information flows from UI through commands, events, and read models.
 ---
 
-# /model — Event Modeling Facilitation
+# /event-modeling — Event Modeling Facilitation
 
 Facilitate an Event Modeling session to design the complete blueprint of a system — from user interface through commands, events, and read models.
 
@@ -19,6 +19,6 @@ Facilitate an Event Modeling session to design the complete blueprint of a syste
 
 | Command        | When to Use Instead                                   |
 | -------------- | ----------------------------------------------------- |
-| `/storm`       | Need to discover domain events first before designing |
-| `/context`     | Need to establish bounded context boundaries          |
+| `/event-storming`    | Need to discover domain events first before designing |
+| `/bounded-contexts`  | Need to establish bounded context boundaries          |
 | `/residuality` | Need to stress-test the architecture for resilience   |

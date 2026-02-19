@@ -21,7 +21,7 @@ This skill should be used when:
 
 - Already know exactly what to diagram → use `/bpmn` directly
 - Exploring a domain without a specific process → use `/discovery`
-- Focusing on events and eventual consistency → use `/storm`
+- Focusing on events and eventual consistency → use `/event-storming`
 
 ## Invocation Modes
 

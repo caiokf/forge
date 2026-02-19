@@ -28,5 +28,5 @@ Facilitate an interactive session to discover, model, and refine business proces
 | ------------ | ------------------------------------------------------ |
 | `/bpmn`      | Already know exactly what to diagram                   |
 | `/discovery` | Exploring a domain without a specific process in mind  |
-| `/storm`     | Focusing on events and eventual consistency            |
-| `/context`   | Identifying service boundaries before process modeling |
+| `/event-storming`    | Focusing on events and eventual consistency            |
+| `/bounded-contexts`  | Identifying service boundaries before process modeling |
