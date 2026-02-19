@@ -9,9 +9,9 @@ A [Claude Code](https://claude.ai/code) plugin for software architecture discove
 | `/discovery` | Explore a problem space through open-ended domain discovery |
 | `/define` | Transform a fuzzy product idea into a clear, validated definition |
 | `/brainstorm` | Run a multi-agent ideation session with three AI thinking styles |
-| `/storm` | Discover domain events, commands, and aggregates via Event Storming |
-| `/model` | Design system blueprints with Event Modeling (commands, events, read models) |
-| `/context` | Map DDD bounded contexts and their relationships |
+| `/event-storming` | Discover domain events, commands, and aggregates via Event Storming |
+| `/event-modeling` | Design system blueprints with Event Modeling (commands, events, read models) |
+| `/bounded-contexts` | Map DDD bounded contexts and their relationships |
 | `/workflow` | Discover and model business processes as BPMN diagrams |
 | `/c4-architecture` | Generate C4 architecture documentation from an existing codebase |
 | `/residuality` | Stress-test architectures using Residuality Theory |
@@ -19,13 +19,13 @@ A [Claude Code](https://claude.ai/code) plugin for software architecture discove
 ### Typical Flow
 
 ```
-/discovery  -->  /define  -->  /storm  -->  /model
-                                  |
-                                  v
-                              /context  -->  /workflow
+/discovery  -->  /define  -->  /event-storming  -->  /event-modeling
+                                       |
+                                       v
+                               /bounded-contexts  -->  /workflow
 ```
 
-Start with `/discovery` to explore the problem space, `/define` to sharpen the product definition, then move into modeling with `/storm` or `/model`. Use `/context` to map bounded contexts and `/workflow` for process-level detail. `/c4-architecture` works against existing codebases. `/residuality` can be applied at any stage to stress-test decisions.
+Start with `/discovery` to explore the problem space, `/define` to sharpen the product definition, then move into modeling with `/event-storming` or `/event-modeling`. Use `/bounded-contexts` to map bounded contexts and `/workflow` for process-level detail. `/c4-architecture` works against existing codebases. `/residuality` can be applied at any stage to stress-test decisions.
 
 ## Installation
 
