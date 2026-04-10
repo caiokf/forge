@@ -1,6 +1,20 @@
 # Forge
 
-A [Claude Code](https://claude.ai/code) plugin for software architecture discovery and modeling, a tollkit with interactive facilitation skills that guide you through architecture and domain modeling techniques — from early discovery through to detailed system design.
+```
+    ╔═══════════════════════════════════════════╗
+    ║                                           ║
+    ║   ███████╗ ██████╗ ██████╗  ██████╗ ███████╗
+    ║   ██╔════╝██╔═══██╗██╔══██╗██╔════╝ ██╔════╝
+    ║   █████╗  ██║   ██║██████╔╝██║  ███╗█████╗
+    ║   ██╔══╝  ██║   ██║██╔══██╗██║   ██║██╔══╝
+    ║   ██║     ╚██████╔╝██║  ██║╚██████╔╝███████╗
+    ║   ╚═╝      ╚═════╝ ╚═╝  ╚═╝ ╚═════╝ ╚══════╝
+    ║                                           ║
+    ║   architecture discovery & modeling       ║
+    ╚═══════════════════════════════════════════╝
+```
+
+A [Claude Code](https://claude.ai/code) plugin for software architecture discovery and modeling — a toolkit with interactive facilitation skills that guide you through architecture and domain modeling techniques, from early discovery through to detailed system design.
 
 ### Commands
 
