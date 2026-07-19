@@ -60,9 +60,18 @@ C4-Documentation/
 ├── c4-component.md            # Level 3: Component index
 ├── c4-component-[name].md     # Level 3: Individual components
 ├── c4-code-[name].md          # Level 4: Code-level docs
+├── c4-diagrams.html           # Optional: interactive HTML diagram (all levels)
 └── apis/
     └── [container]-api.yaml   # OpenAPI specs
 ```
+
+## Interactive HTML Output
+
+When asked to generate C4 diagrams **in HTML form**, produce a single self-contained `c4-diagrams.html` holding all levels with drill-down navigation, pan/zoom, and node details — instead of (or alongside) Mermaid diagrams.
+
+1. Read `references/html-diagram-design.md` for the design language, tokens, and interaction spec
+2. Start from `templates/c4-diagram.html`: replace the `MODEL` constant with the analyzed architecture, then inline `templates/diagram.css` and `templates/diagram.js` into the file so the artifact is a single portable HTML file
+3. Follow the layout guidance in the reference when assigning node coordinates
 
 ## Success Criteria
 
@@ -99,7 +108,11 @@ C4-Documentation/
 
 ## References
 
-| File                                   | Content                                                               |
-| -------------------------------------- | --------------------------------------------------------------------- |
-| `references/workflow-phases.md`        | Detailed tasks and actions for each phase                             |
-| `references/documentation-patterns.md` | C4 documentation templates, Mermaid syntax, and validation checklists |
+| File                                   | Content                                                                |
+| -------------------------------------- | ---------------------------------------------------------------------- |
+| `references/workflow-phases.md`        | Detailed tasks and actions for each phase                              |
+| `references/documentation-patterns.md` | C4 documentation templates, Mermaid syntax, and validation checklists  |
+| `references/html-diagram-design.md`    | Design tokens and interaction spec for interactive HTML diagram output |
+| `templates/c4-diagram.html`            | HTML skeleton with embedded sample MODEL (replace, then inline assets) |
+| `templates/diagram.css`                | Diagram stylesheet (design tokens, node/edge/chrome styles)            |
+| `templates/diagram.js`                 | Diagram engine (rendering, pan/zoom, drill-down, selection)            |
