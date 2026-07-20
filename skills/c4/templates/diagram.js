@@ -9,6 +9,11 @@ const PALETTE = ["#8CECFF","#588AF7","#3FE99C","#CB80F0","#FF72FC","#F07C7F","#F
 const KIND_LABEL = { system:"System", app:"App", store:"Store", component:"Component", actor:"Actor" };
 const LEVEL_LABEL = { context:"Context", container:"Container", component:"Component" };
 const DEBT_META = { 1:["Pristine","#3FE99C"], 2:["Low Debt","#F5B841"], 3:["Medium Debt","#FF8811"], 4:["High Debt","#F07C7F"] };
+const MATURITY_META = { automated:["Automated","#3FE99C"], managed:["Managed","#8CECFF"],
+                        scripted:["Scripted","#F5B841"], manual:["Manual","#FF8811"] };
+const IAC_LABEL = { terraform:"Terraform", pulumi:"Pulumi", cloudformation:"CloudFormation", cdk:"CDK",
+                    kubernetes:"Kubernetes", helm:"Helm", kustomize:"Kustomize", ansible:"Ansible",
+                    "docker-compose":"Docker Compose", "platform-config":"Platform config", none:"None" };
 const colorMaps = {};
 function catColor(ns, v){
   if (!v) return null;
@@ -21,7 +26,11 @@ function techColor(t){ return catColor("tech", t); }
 /* Overlay modes for the bottom bar: each maps a node to a legend value + color. */
 const OVERLAYS = {
   tech:   { value: n => n.tech, color: v => catColor("tech", v) },
-  deploy: { value: n => n.deployment && n.deployment.target, color: v => catColor("deploy", v) },
+  deploy: { value: n => n.deployment && MATURITY_META[n.deployment.maturity] && MATURITY_META[n.deployment.maturity][0],
+            color: v => (Object.values(MATURITY_META).find(m => m[0] === v) || [,"#CFD2D2"])[1],
+            order: ["Automated","Managed","Scripted","Manual"] },
+  iac:    { value: n => n.deployment && IAC_LABEL[n.deployment.iac], color: v => catColor("iac", v) },
+  target: { value: n => n.deployment && n.deployment.target, color: v => catColor("target", v) },
   debt:   { value: n => DEBT_META[n.techDebt] && DEBT_META[n.techDebt][0],
             color: v => (Object.values(DEBT_META).find(d => d[0] === v) || [,"#CFD2D2"])[1],
             order: ["Pristine","Low Debt","Medium Debt","High Debt"] },
@@ -30,7 +39,7 @@ let overlay = "tech";
 // seed stable colors across all diagrams
 Object.values(MODEL.diagrams).forEach(d => d.nodes.concat(d.groups||[]).forEach(n => {
   catColor("tech", n.tech);
-  if (n.deployment) catColor("deploy", n.deployment.target);
+  if (n.deployment){ catColor("iac", IAC_LABEL[n.deployment.iac]); catColor("target", n.deployment.target); }
 }));
 function caption(n){ return n.kind==="actor" ? "Actor" : KIND_LABEL[n.kind] + (n.tech ? ": " + n.tech : ""); }
 function esc(s){ return String(s??"").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
@@ -261,20 +270,22 @@ function refLink(r){
   const url = r.url || r, label = r.label || r;
   return `<a class="ref" href="${esc(url)}" target="_blank">${esc(label)}</a>`;
 }
-const METHOD_LABEL = { "manual":"Manual", "iac":"IaC", "ci-cd":"CI/CD", "paas":"PaaS" };
-const DEBT = { 1:["Pristine","#3FE99C"], 2:["Low Debt","#F5B841"], 3:["Medium Debt","#FF8811"], 4:["High Debt","#F07C7F"] };
 function openPanel(n){
   const STATUS_COLOR = { live:"#3FE99C", future:"#CB80F0", deprecated:"#FF8811", removed:"#F07C7F" };
   const dep = n.deployment;
-  const depHow = dep && (dep.method || dep.tool)
-    ? `<span class="dep-how">${esc([METHOD_LABEL[dep.method] || dep.method, dep.tool].filter(Boolean).join(" · "))}</span>` : "";
-  const debt = DEBT[n.techDebt];
+  const depExtra = dep
+    ? [dep.detail, dep.tool].filter(Boolean).map(t => `<span class="dep-how">${esc(t)}</span>`).join("")
+    : "";
+  const mat = dep && MATURITY_META[dep.maturity];
+  const debt = DEBT_META[n.techDebt];
   const rows = [
     ["Type", KIND_LABEL[n.kind] || n.kind],
     ["Scope", n.scope ? n.scope[0].toUpperCase()+n.scope.slice(1) : "Internal"],
     n.tech ? ["Technology", esc(n.tech)] : null,
     n.repo ? ["Repo", `<a class="link" href="${esc(n.repo.url||n.repo)}" target="_blank">${esc(n.repo.name||n.repo)}</a>`] : null,
-    dep ? ["Deployment", esc(dep.target) + depHow] : null,
+    dep ? ["Deploy Target", esc(dep.target) + depExtra] : null,
+    mat ? ["Deployment", `<span class="pill"><i style="background:${mat[1]}"></i>${mat[0]}</span>`] : null,
+    dep && dep.iac ? ["IaC", esc(IAC_LABEL[dep.iac] || dep.iac)] : null,
     debt ? ["Tech Debt", `<span class="pill"><i style="background:${debt[1]}"></i>${debt[0]}</span>`] : null,
     n.status ? ["Status", `<span class="pill"><i style="background:${STATUS_COLOR[n.status]||"#CFD2D2"}"></i>${esc(n.status[0].toUpperCase()+n.status.slice(1))}</span>`] : null,
   ].filter(Boolean);

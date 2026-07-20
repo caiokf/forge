@@ -104,17 +104,25 @@
       "required": ["target"],
       "additionalProperties": false,
       "properties": {
-        "method": {
-          "enum": ["manual", "iac", "ci-cd", "paas"],
-          "description": "How deploys are driven: manual steps, infrastructure-as-code, a CI/CD pipeline, or PaaS git integration"
+        "maturity": {
+          "enum": ["automated", "managed", "scripted", "manual"],
+          "description": "Delivery maturity ladder: automated (CI/CD on merge), managed (PaaS git integration), scripted (one-command human-run deploys), manual (hand steps / clickops)"
         },
-        "tool": {
-          "type": "string",
-          "description": "Specific tool/pipeline, e.g. Terraform, Pulumi, Helm, CodeBuild → ECR → kubectl, Vercel git integration"
+        "iac": {
+          "enum": ["terraform", "pulumi", "cloudformation", "cdk", "kubernetes", "helm", "kustomize", "ansible", "docker-compose", "platform-config", "none"],
+          "description": "What defines the infrastructure. platform-config = declarative PaaS config in repo (railway.toml, vercel.json, wrangler.toml); none = clickops / nothing versioned"
         },
         "target": {
           "type": "string", "minLength": 1,
-          "description": "Where it runs, e.g. EKS cluster (AWS region), EC2, Lambda, Vercel, Railway, Cloudflare Workers, user machines"
+          "description": "Where it runs — SHORT and normalized for legend chips, e.g. 'AWS EKS', 'AWS EC2', 'Railway', 'Vercel', 'Cloudflare Workers', 'User devices', 'Local'"
+        },
+        "detail": {
+          "type": "string",
+          "description": "Free-text specifics for the panel: cluster/namespace/region/hostname, e.g. 'inboxagents-claw · ns nemoclaw (ap-southeast-2)'"
+        },
+        "tool": {
+          "type": "string",
+          "description": "Pipeline/tool description, e.g. 'CodeBuild → ECR → kubectl rollout', 'Railway git deploy', 'wrangler'"
         },
         "links": {
           "type": "array",

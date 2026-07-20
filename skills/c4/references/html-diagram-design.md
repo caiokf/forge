@@ -112,7 +112,7 @@ On node select: connected edges + their labels tint `#73E5F6`; every unconnected
 
 - **Top bar**: floating rounded (8px) bar, fill `#0C0D0D`, height 48px — back/forward arrows, diagram breadcrumb (`Diagrams | <name>`), level badge (`Context` / `Container` / `Component`).
 - **Details panel**: opens on select, right side, 320px, fill `#1B1C1D`, radius 12px, shadow `0 20px 24px -4px rgba(0,0,0,.3)`. Header: icon tile + name. Rows: Type, Scope, Technology, **Repo** (accent-colored link to the owning repository), Status as a pill (colored dot + label). Then Description, a **References** list (mono, accent links to source files/dirs — expected on component-level nodes), and "Open diagram →" when the node has a child diagram.
-- **Overlay bar** (bottom-left): a tab row — **Technology · Deployment · Tech Debt** — plus a chips row for the active tab. Chips are one per value present in the current diagram (`bg = color at 18% alpha`, `1px` border of the color, label + count). Technology and Deployment values get categorical palette colors; Tech Debt uses fixed colors (Pristine `#3FE99C`, Low `#F5B841`, Medium `#FF8811`, High `#F07C7F`) in fixed order. While an overlay is active every node shows a 3px underline bar in its value's color; hovering a chip dims non-matching nodes. Clicking the active tab toggles the overlay off.
+- **Overlay bar** (bottom-left): a tab row — **Technology · Deployment · IaC · Deploy Target · Tech Debt** — plus a chips row for the active tab. Chips are one per value present in the current diagram (`bg = color at 18% alpha`, `1px` border of the color, label + count). Technology, IaC, and Deploy Target values get categorical palette colors; Deployment maturity (Automated `#3FE99C`, Managed `#8CECFF`, Scripted `#F5B841`, Manual `#FF8811`) and Tech Debt (Pristine `#3FE99C`, Low `#F5B841`, Medium `#FF8811`, High `#F07C7F`) use fixed colors in fixed order. While an overlay is active every node shows a 3px underline bar in its value's color; hovering a chip dims non-matching nodes. Clicking the active tab toggles the overlay off.
 - **Zoom controls** (bottom-right): − / percentage / + / ⛶ fit.
 
 ## Interaction Spec
@@ -166,9 +166,13 @@ Per-diagram view state (pan/zoom) is preserved when navigating between levels. I
             }
           ],
           "deployment": {                   // composite deployment facts (optional)
-            "method": "iac",                // "manual" | "iac" | "ci-cd" | "paas"
-            "tool": "Terraform",            // the specific tool/pipeline (optional)
-            "target": "EKS my-cluster (AWS us-east-1)",   // where it runs (required)
+            "maturity": "automated",        // "automated" | "managed" | "scripted" | "manual"
+            "iac": "terraform",             // "terraform" | "pulumi" | "cloudformation" | "cdk" |
+                                            //   "kubernetes" | "helm" | "kustomize" | "ansible" |
+                                            //   "docker-compose" | "platform-config" | "none"
+            "target": "AWS EKS",            // required — SHORT + normalized (drives legend chips)
+            "detail": "my-cluster (us-east-1)",           // free-text specifics for the panel
+            "tool": "CodeBuild → ECR → kubectl rollout",  // pipeline description (optional)
             "links": [                      // deploy files + console/dashboard deep links
               { "label": "infra/main.tf", "url": "https://github.com/acme/infra/blob/main/main.tf" },
               { "label": "EKS console", "url": "https://us-east-1.console.aws.amazon.com/eks/home?region=us-east-1#/clusters/my-cluster" }
@@ -215,7 +219,13 @@ Icon image URL = `iconBase + icon` (dark-theme variants — right for this dark 
 
 ## Deployment & Tech Debt Guidance
 
-**`deployment`** — discover from the repo: Dockerfiles, `k8s/` manifests, `terraform`/`pulumi` dirs, `buildspec.yml`, CI workflow files, `railway.toml`/`railway.json`, `vercel.json`, `wrangler.toml`, compose files. `method`: `manual` (human runs steps), `iac` (declarative infra applied), `ci-cd` (pipeline builds/deploys), `paas` (git-integration auto-deploy). `links` should include the deploy files (remote URLs) **and** operational deep links: cloud console URLs (e.g. `https://<region>.console.aws.amazon.com/eks/home?region=<region>#/clusters/<name>`), PaaS dashboards. Components inherit their container's deployment — only set it where it differs.
+**`deployment`** — discover from the repo: Dockerfiles, `k8s/` manifests, `terraform`/`pulumi` dirs, `buildspec.yml`, CI workflow files, `railway.toml`/`railway.json`, `vercel.json`, `wrangler.toml`, compose files. Three orthogonal facts, each its own overlay:
+
+- **`maturity`** (Deployment overlay) — how the path to prod is driven: `automated` (CI/CD delivers on merge), `managed` (PaaS git-integration auto-deploys), `scripted` (one-command human-run deploys: `wrangler deploy`, `kubectl apply`, `terraform apply`), `manual` (hand steps, ssh, clickops). Fixed ladder colors: green / blue / yellow / orange.
+- **`iac`** (IaC overlay) — what defines the infrastructure. Use `platform-config` for declarative PaaS config committed in the repo; `none` when nothing is versioned. When a Terraform-provisioned host runs a compose stack, put `terraform` on the host/system node and `docker-compose` on the containers inside it.
+- **`target`** (Deploy Target overlay) — **short, normalized** values so chips aggregate: `AWS EKS`, `AWS EC2`, `Railway`, `Vercel`, `Cloudflare Workers`, `User devices`, `Local`, `CI`. Put cluster/namespace/region/hostname specifics in `detail`.
+
+`links` should include the deploy files (remote URLs) **and** operational deep links: cloud console URLs (e.g. `https://<region>.console.aws.amazon.com/eks/home?region=<region>#/clusters/<name>`), PaaS dashboards. Components inherit their container's deployment — only set it where it differs.
 
 **`techDebt`** rubric (estimate from evidence; cite the strongest signal in `description`):
 

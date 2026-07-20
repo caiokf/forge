@@ -13,7 +13,9 @@ window.C4_MODEL = {
           "scope": "internal", "x": 340, "y": 130, "childDiagram": "platform", "status": "live",
           "repo": { "name": "acme/commerce", "url": "https://github.com/acme/commerce" },
           "deployment": {
-            "method": "iac", "tool": "Terraform", "target": "EKS acme-prod (AWS us-east-1)",
+            "maturity": "automated", "iac": "terraform",
+            "target": "AWS EKS", "detail": "acme-prod (us-east-1)",
+            "tool": "GitHub Actions → ECR → helm upgrade",
             "links": [
               { "label": "infra/main.tf", "url": "https://github.com/acme/infra/blob/main/main.tf" },
               { "label": "EKS console", "url": "https://us-east-1.console.aws.amazon.com/eks/home?region=us-east-1#/clusters/acme-prod" }

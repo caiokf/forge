@@ -22,8 +22,10 @@ SCHEMA_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "c4-model
 NODE_REQ = {"id", "kind", "name", "x", "y"}
 NODE_KEYS = NODE_REQ | {"tech", "icon", "scope", "status", "group", "childDiagram", "description", "repo", "references", "deployment", "techDebt"}
 DEPLOY_REQ = {"target"}
-DEPLOY_KEYS = DEPLOY_REQ | {"method", "tool", "links"}
-METHODS = {"manual", "iac", "ci-cd", "paas"}
+DEPLOY_KEYS = DEPLOY_REQ | {"maturity", "iac", "detail", "tool", "links"}
+MATURITIES = {"automated", "managed", "scripted", "manual"}
+IACS = {"terraform", "pulumi", "cloudformation", "cdk", "kubernetes", "helm", "kustomize",
+        "ansible", "docker-compose", "platform-config", "none"}
 GROUP_REQ = {"id", "name", "x", "y", "w", "h"}
 GROUP_KEYS = GROUP_REQ | {"tech", "icon", "childDiagram", "description"}
 EDGE_REQ = {"from", "to"}
@@ -68,8 +70,10 @@ def structural_fallback(model, errs):
                     missing = DEPLOY_REQ - dep.keys(); unknown = dep.keys() - DEPLOY_KEYS
                     if missing: errs.append(f"{np}.deployment: missing {sorted(missing)}")
                     if unknown: errs.append(f"{np}.deployment: unknown fields {sorted(unknown)}")
-                    if "method" in dep and dep["method"] not in METHODS:
-                        errs.append(f"{np}.deployment.method: {dep['method']!r} not in {sorted(METHODS)}")
+                    if "maturity" in dep and dep["maturity"] not in MATURITIES:
+                        errs.append(f"{np}.deployment.maturity: {dep['maturity']!r} not in {sorted(MATURITIES)}")
+                    if "iac" in dep and dep["iac"] not in IACS:
+                        errs.append(f"{np}.deployment.iac: {dep['iac']!r} not in {sorted(IACS)}")
         for i, g in enumerate(d.get("groups", [])):
             gp = f"{p}.groups[{i}]({g.get('id','?')})"
             missing = GROUP_REQ - g.keys(); unknown = g.keys() - GROUP_KEYS
