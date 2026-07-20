@@ -76,12 +76,14 @@ When asked to generate C4 diagrams **in HTML form**, produce an interactive dril
 
 1. **Ask how many levels** the user wants before modeling, unless they already said: 1 = context only, 2 = + containers, 3 = + components, 4 = + code. Model every requested level: each node at level N gets a `childDiagram` at level N+1 whenever the codebase/docs support it, so the magnifier drill-down goes as deep as requested
 2. Read `references/html-diagram-design.md` for the design language, model schema, and interaction spec
-3. Analyze the architecture and write **`c4-model.json`** — the canonical structured model conforming to `references/c4-model.schema.json`. Every internal node at every level (systems, containers, AND components) gets a `repo` link; component-level nodes additionally get `references` (source file/dir links). Use **remote URLs** (GitHub/Bitbucket, from `git remote get-url origin` + default branch, `blob/` for files and `tree/` for dirs); fall back to relative local paths only when no remote exists
+3. Analyze the architecture and write **`c4-model.json`** — the canonical structured model conforming to `references/c4-model.schema.json`. Every internal node at every level (systems, containers, AND components) gets a `repo` link; component-level nodes additionally get `references` (source file/dir links). Use **remote URLs** (GitHub/Bitbucket, from `git remote get-url origin` + default branch, `blob/` for files and `tree/` for dirs); fall back to relative local paths only when no remote exists. Also set on every internal node:
+   - **`deployment`** — `target` (where it runs: EKS/EC2/Lambda/Vercel/Railway/user machines…), `method` (`manual`/`iac`/`ci-cd`/`paas`), `tool` (Terraform, Pulumi, CodeBuild pipeline, Vercel git integration…), and `links` (deploy files as remote URLs, cloud console deep links, PaaS dashboards). Discover from Dockerfiles, k8s manifests, terraform/pulumi dirs, buildspecs, CI workflows, `railway.toml`/`vercel.json`. Components inherit their container's deployment — set it on components only when it differs
+   - **`techDebt`** — estimate 1–4 (1 Pristine, 2 Low, 3 Medium, 4 High) from evidence: test coverage, dead/legacy code, mock-backed prototypes, hard-coded workarounds, unmaintained forks, availability hacks, dependency age. Note the strongest signal in the node's `description`
 4. **Validate before assembling**: run `python3 references/validate-model.py <out>/c4-model.json --check-links` and fix findings until it prints `VALID` (checks schema conformance, drill-down/edge referential integrity, and that relative links exist on disk)
 5. Assemble the output directory:
-   - Copy `templates/diagram.html` → `<out>/index.html`, and `templates/diagram.css`, `templates/diagram.js` **verbatim** (never edit the copies)
+   - Copy `templates/diagram.html` → `<out>/index.html`, and `templates/diagram.css`, `templates/diagram.js`, `templates/techs.js` **verbatim** (never edit the copies)
    - Derive `<out>/c4-model.js` as `window.C4_MODEL = ` + the JSON + `;`
-6. Verify by opening `index.html` in a browser: drill-down from context to the deepest level, click nodes to check Repo/References links resolve
+6. Verify by opening `index.html` in a browser: drill-down from context to the deepest level, click nodes to check Repo/References/Deploy links resolve, toggle the Technology/Deployment/Tech Debt overlay tabs
 
 ## Success Criteria
 
@@ -125,7 +127,9 @@ When asked to generate C4 diagrams **in HTML form**, produce an interactive dril
 | `references/html-diagram-design.md`    | Design tokens, model schema, and interaction spec for HTML output      |
 | `references/c4-model.schema.json`      | JSON Schema for `c4-model.json`                                        |
 | `references/validate-model.py`         | Validator: schema + referential integrity + link existence             |
+| `references/techs.json`                | Technology icon catalog (~2,900 techs) used to auto-resolve node icons |
 | `templates/diagram.html`               | Static viewer shell — copy to output as `index.html`                   |
 | `templates/diagram.css`                | Static stylesheet — copy verbatim                                      |
-| `templates/diagram.js`                 | Static engine (rendering, zoom/pan, drill-down) — copy verbatim        |
+| `templates/diagram.js`                 | Static engine (rendering, zoom/pan, drill-down, overlays) — copy verbatim |
+| `templates/techs.js`                   | Static icon catalog asset (`window.C4_TECHS`) — copy verbatim          |
 | `templates/c4-model.js`                | Sample model showing the schema (output overwrites with generated one) |

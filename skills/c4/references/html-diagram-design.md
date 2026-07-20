@@ -9,6 +9,7 @@ Design language and interaction spec for generating interactive C4 diagram artif
 ├── index.html      # copied from templates/diagram.html — never edited
 ├── diagram.css     # copied verbatim — never edited
 ├── diagram.js      # copied verbatim — never edited
+├── techs.js        # copied verbatim — technology icon catalog (window.C4_TECHS)
 ├── c4-model.json   # GENERATED: the structured C4 model (canonical artifact)
 └── c4-model.js     # GENERATED: "window.C4_MODEL = " + contents of c4-model.json + ";"
 ```
@@ -81,8 +82,8 @@ Node captions are typed labels in mono: `System: GitHub`, `App: Rails`, `Store: 
 ### Node cards
 
 - Fill `#161717`, border `1px solid #434647`, radius `6px`, subtle shadow `0 2px 4px -2px rgba(0,0,0,.06), 0 4px 6px -1px rgba(0,0,0,.1)`.
-- Default size ~`180×72`; grows with content. Layout: icon tile left, name beside it, caption centered at bottom.
-- Icon tile: `36×36`, white fill, radius `6px`, holds an emoji or inline SVG brand glyph (24px).
+- Default size ~`180×72`; grows with content. Layout: icon left, name beside it, caption centered at bottom.
+- **Icon resolution**: an explicit `icon` (emoji) renders in a `36×36` white tile; otherwise the node's `tech` is looked up in the technology catalog (`techs.js`, from `references/techs.json`) — case-insensitive against `name`, `nameShort`, and `slugs` — and the matching brand icon renders as a `34×34` rounded image (dark-theme variant, no tile). No explicit icon + no catalog match = text-only card. Prefer omitting `icon` whenever `tech` resolves in the catalog; use emojis for semantic components ("🔐 Auth") and anything the catalog lacks.
 - **External-scope** nodes: fill `#ADB3B3`, text `#1F2121` (light card on dark canvas signals "not ours").
 - **Actor** nodes: a small `28×28` white icon tile (person glyph) floating centered above a compact card; caption is just `Actor`.
 - **Drill-down badge**: nodes/groups with a child diagram show a magnifier glyph (+ child count) in the top-left corner, always visible, `#838A8D` idle → `#73E5F6` on hover.
@@ -111,7 +112,7 @@ On node select: connected edges + their labels tint `#73E5F6`; every unconnected
 
 - **Top bar**: floating rounded (8px) bar, fill `#0C0D0D`, height 48px — back/forward arrows, diagram breadcrumb (`Diagrams | <name>`), level badge (`Context` / `Container` / `Component`).
 - **Details panel**: opens on select, right side, 320px, fill `#1B1C1D`, radius 12px, shadow `0 20px 24px -4px rgba(0,0,0,.3)`. Header: icon tile + name. Rows: Type, Scope, Technology, **Repo** (accent-colored link to the owning repository), Status as a pill (colored dot + label). Then Description, a **References** list (mono, accent links to source files/dirs — expected on component-level nodes), and "Open diagram →" when the node has a child diagram.
-- **Overlay legend** (bottom-left): a row of chips, one per technology present, `bg = color at 18% alpha`, `1px` border of the color, label + count in the color. Hovering a chip highlights matching nodes (others dim); each node shows a 3px underline bar in its technology color when the legend is active.
+- **Overlay bar** (bottom-left): a tab row — **Technology · Deployment · Tech Debt** — plus a chips row for the active tab. Chips are one per value present in the current diagram (`bg = color at 18% alpha`, `1px` border of the color, label + count). Technology and Deployment values get categorical palette colors; Tech Debt uses fixed colors (Pristine `#3FE99C`, Low `#F5B841`, Medium `#FF8811`, High `#F07C7F`) in fixed order. While an overlay is active every node shows a 3px underline bar in its value's color; hovering a chip dims non-matching nodes. Clicking the active tab toggles the overlay off.
 - **Zoom controls** (bottom-right): − / percentage / + / ⛶ fit.
 
 ## Interaction Spec
@@ -163,7 +164,17 @@ Per-diagram view state (pan/zoom) is preserved when navigating between levels. I
               "label": "src/routes/checkout.ts",
               "url": "https://github.com/acme/web/blob/main/src/routes/checkout.ts"
             }
-          ]
+          ],
+          "deployment": {                   // composite deployment facts (optional)
+            "method": "iac",                // "manual" | "iac" | "ci-cd" | "paas"
+            "tool": "Terraform",            // the specific tool/pipeline (optional)
+            "target": "EKS my-cluster (AWS us-east-1)",   // where it runs (required)
+            "links": [                      // deploy files + console/dashboard deep links
+              { "label": "infra/main.tf", "url": "https://github.com/acme/infra/blob/main/main.tf" },
+              { "label": "EKS console", "url": "https://us-east-1.console.aws.amazon.com/eks/home?region=us-east-1#/clusters/my-cluster" }
+            ]
+          },
+          "techDebt": 2                     // 1 Pristine · 2 Low Debt · 3 Medium Debt · 4 High Debt
         }
       ],
       "groups": [                           // boundary boxes, rendered beneath nodes
@@ -183,6 +194,37 @@ Notes:
 - **Every internal node carries `repo`** — systems, containers, and components alike (components inherit their container's repo). Only external-scope nodes and actors go without.
 - `references` items may also be plain strings (rendered as the link label and href).
 - Every diagram other than the root should set `parent`; every node/group that has a corresponding deeper diagram should set `childDiagram` — that is what makes the magnifier drill-down appear.
+
+## Technology Icon Catalog (`references/techs.json`)
+
+~2,900 technologies (AWS/Azure/GCP services, languages, frameworks, databases, SaaS) with brand icon URLs. Shape:
+
+```jsonc
+{
+  "iconBase": "https://…/icons",
+  "technologies": [
+    { "name": "Amazon Elastic Kubernetes Service (EKS)", "nameShort": "EKS",
+      "slugs": ["amazon-elastic-kubernetes-service", "eks", …],
+      "color": "orange", "type": "cloud-service", "provider": "aws",
+      "iconDark": "/dark/<id>", "iconLight": "/light/<id>" }
+  ]
+}
+```
+
+Icon image URL = `iconBase + iconDark + ".png?size=64"` (dark-theme variant — right for this dark UI). The static asset `templates/techs.js` is this file wrapped as `window.C4_TECHS = …;` and is copied verbatim into every artifact. When writing `tech` values in the model, prefer names that resolve in this catalog (`PostgreSQL` not `pg16`, `TypeScript` not `TS` — unless the caption text matters more than the icon).
+
+## Deployment & Tech Debt Guidance
+
+**`deployment`** — discover from the repo: Dockerfiles, `k8s/` manifests, `terraform`/`pulumi` dirs, `buildspec.yml`, CI workflow files, `railway.toml`/`railway.json`, `vercel.json`, `wrangler.toml`, compose files. `method`: `manual` (human runs steps), `iac` (declarative infra applied), `ci-cd` (pipeline builds/deploys), `paas` (git-integration auto-deploy). `links` should include the deploy files (remote URLs) **and** operational deep links: cloud console URLs (e.g. `https://<region>.console.aws.amazon.com/eks/home?region=<region>#/clusters/<name>`), PaaS dashboards. Components inherit their container's deployment — only set it where it differs.
+
+**`techDebt`** rubric (estimate from evidence; cite the strongest signal in `description`):
+
+| Value | Label       | Signals                                                                    |
+| ----- | ----------- | -------------------------------------------------------------------------- |
+| 1     | Pristine    | Spec/tests-first, current deps, no known hacks, clean boundaries           |
+| 2     | Low Debt    | Minor gaps; production-worthy with small caveats                           |
+| 3     | Medium Debt | Notable shortcuts: weak tests, SPOF coupling, monolith sprawl, aging deps  |
+| 4     | High Debt   | Prototypes on mocks, dead/legacy code, unmaintained forks, security footguns, availability hacks |
 
 ## Validating the Model
 
