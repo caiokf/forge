@@ -12,6 +12,14 @@ window.C4_MODEL = {
         { "id": "platform", "kind": "system", "name": "Commerce Platform", "tech": "Rails", "icon": "🛒",
           "scope": "internal", "x": 340, "y": 130, "childDiagram": "platform", "status": "live",
           "repo": { "name": "acme/commerce", "url": "https://github.com/acme/commerce" },
+          "deployment": {
+            "method": "iac", "tool": "Terraform", "target": "EKS acme-prod (AWS us-east-1)",
+            "links": [
+              { "label": "infra/main.tf", "url": "https://github.com/acme/infra/blob/main/main.tf" },
+              { "label": "EKS console", "url": "https://us-east-1.console.aws.amazon.com/eks/home?region=us-east-1#/clusters/acme-prod" }
+            ]
+          },
+          "techDebt": 2,
           "description": "Core e-commerce system handling catalog, checkout and orders." },
         { "id": "stripe", "kind": "system", "name": "Stripe", "tech": "Stripe", "icon": "💳",
           "scope": "external", "x": 700, "y": 40, "description": "Third-party payment processing." },

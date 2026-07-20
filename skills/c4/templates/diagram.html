@@ -46,7 +46,14 @@
     <div id="crumbs"></div>
   </div>
 
-  <div class="bar" id="legend"></div>
+  <div id="overlay-bar">
+    <div class="bar" id="overlay-tabs">
+      <button data-ov="tech">Technology</button>
+      <button data-ov="deploy">Deployment</button>
+      <button data-ov="debt">Tech Debt</button>
+    </div>
+    <div class="bar" id="legend"></div>
+  </div>
 
   <div class="bar" id="zoombar">
     <button id="z-out">&minus;</button>
@@ -58,6 +65,7 @@
   <div id="panel"></div>
 </div>
 
+<script src="techs.js"></script>
 <script src="c4-model.js"></script>
 <script src="diagram.js"></script>
 </body>

@@ -8,12 +8,54 @@ if (!MODEL) throw new Error("c4-model.js missing or did not set window.C4_MODEL"
 const PALETTE = ["#8CECFF","#588AF7","#3FE99C","#CB80F0","#FF72FC","#F07C7F","#FF8811","#F5B841","#C6ADA3","#CFD2D2"];
 const KIND_LABEL = { system:"System", app:"App", store:"Store", component:"Component", actor:"Actor" };
 const LEVEL_LABEL = { context:"Context", container:"Container", component:"Component" };
-const techColors = {};
-let paletteIdx = 0;
-function techColor(t){ if(!t) return null; if(!techColors[t]) techColors[t] = PALETTE[paletteIdx++ % PALETTE.length]; return techColors[t]; }
-Object.values(MODEL.diagrams).forEach(d => d.nodes.concat(d.groups||[]).forEach(n => techColor(n.tech)));
+const DEBT_META = { 1:["Pristine","#3FE99C"], 2:["Low Debt","#F5B841"], 3:["Medium Debt","#FF8811"], 4:["High Debt","#F07C7F"] };
+const colorMaps = {};
+function catColor(ns, v){
+  if (!v) return null;
+  const m = colorMaps[ns] ??= { i:0, map:{} };
+  if (!(v in m.map)) m.map[v] = PALETTE[m.i++ % PALETTE.length];
+  return m.map[v];
+}
+function techColor(t){ return catColor("tech", t); }
+
+/* Overlay modes for the bottom bar: each maps a node to a legend value + color. */
+const OVERLAYS = {
+  tech:   { value: n => n.tech, color: v => catColor("tech", v) },
+  deploy: { value: n => n.deployment && n.deployment.target, color: v => catColor("deploy", v) },
+  debt:   { value: n => DEBT_META[n.techDebt] && DEBT_META[n.techDebt][0],
+            color: v => (Object.values(DEBT_META).find(d => d[0] === v) || [,"#CFD2D2"])[1],
+            order: ["Pristine","Low Debt","Medium Debt","High Debt"] },
+};
+let overlay = "tech";
+// seed stable colors across all diagrams
+Object.values(MODEL.diagrams).forEach(d => d.nodes.concat(d.groups||[]).forEach(n => {
+  catColor("tech", n.tech);
+  if (n.deployment) catColor("deploy", n.deployment.target);
+}));
 function caption(n){ return n.kind==="actor" ? "Actor" : KIND_LABEL[n.kind] + (n.tech ? ": " + n.tech : ""); }
 function esc(s){ return String(s??"").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+
+/* Technology icon catalog (techs.js → window.C4_TECHS). Explicit node.icon wins;
+   otherwise node.tech is matched case-insensitively against name/nameShort/slugs. */
+const TECH_INDEX = {};
+const TECH_ICON_BASE = (window.C4_TECHS && window.C4_TECHS.iconBase) || "";
+if (window.C4_TECHS) {
+  window.C4_TECHS.technologies.forEach(t => {
+    [t.name, t.nameShort, ...(t.slugs || [])].filter(Boolean).forEach(k => {
+      const key = k.toLowerCase();
+      if (!(key in TECH_INDEX)) TECH_INDEX[key] = t;
+    });
+  });
+}
+function techIconSrc(tech){
+  const t = tech && TECH_INDEX[String(tech).toLowerCase()];
+  return t && t.iconDark ? `${TECH_ICON_BASE}${t.iconDark}.png?size=64` : null;
+}
+function iconHTML(n){
+  if (n.icon) return `<span class="icon">${esc(n.icon)}</span>`;
+  const src = techIconSrc(n.tech);
+  return src ? `<img class="brand-icon" src="${esc(src)}" alt="">` : "";
+}
 
 /* ========================== state ========================== */
 const views = {};                 // per-diagram pan/zoom
@@ -49,7 +91,7 @@ function render(){
     el.innerHTML =
       (g.childDiagram ? `<span class="drill" data-target="${esc(g.childDiagram)}">${MAGNIFIER}<span>${childCount(g.childDiagram)}</span></span>` : "") +
       `<div class="g-head" style="${g.childDiagram?'margin-left:26px':''}">` +
-      (g.icon ? `<span class="icon">${esc(g.icon)}</span>` : "") +
+      iconHTML(g) +
       `<span>${esc(g.name)}</span></div>` +
       `<div class="g-caption">${esc("System" + (g.tech ? ": " + g.tech : ""))}</div>`;
     gl.appendChild(el);
@@ -69,10 +111,10 @@ function render(){
     } else {
       el.innerHTML = drill +
         `<div class="head">` +
-        (n.icon ? `<span class="icon">${esc(n.icon)}</span>` : "") +
+        iconHTML(n) +
         `<span class="name">${esc(n.name)}</span></div>` +
         `<div class="caption">${esc(caption(n))}</div>` +
-        (bar ? `<span class="tech-bar" style="background:${bar}"></span>` : "") +
+        `<span class="tech-bar"></span>` +
         `<span class="dots"><i style="top:-4px;left:50%"></i><i style="bottom:-4px;left:50%"></i><i style="left:-4px;top:50%"></i><i style="right:-4px;top:50%"></i></span>` +
         `<span class="handles">` +
           `<i style="top:-4px;left:-4px"></i><i style="top:-4px;left:calc(50% - 4px)"></i><i style="top:-4px;right:-4px"></i>` +
@@ -144,24 +186,44 @@ function renderCrumbs(){
   document.getElementById("nav-fwd").disabled  = histPos >= history.length-1;
 }
 
-let legendActive = null;
+let legendActive = null;   // hovered legend value of the active overlay
+function updateBars(){
+  const ov = OVERLAYS[overlay];
+  document.body.classList.toggle("legend-on", !!ov);
+  const byId = {}; diagram().nodes.forEach(n => byId[n.id] = n);
+  document.querySelectorAll(".node .tech-bar").forEach(bar => {
+    const n = byId[bar.closest(".node").dataset.id];
+    const v = ov && n ? ov.value(n) : null;
+    bar.style.background = v ? ov.color(v) : "transparent";
+  });
+}
 function renderLegend(){
-  const counts = {};
-  diagram().nodes.forEach(n => { if(n.tech) counts[n.tech] = (counts[n.tech]||0)+1; });
+  document.querySelectorAll("#overlay-tabs button").forEach(b =>
+    b.classList.toggle("active", b.dataset.ov === overlay));
   const lg = document.getElementById("legend");
   lg.innerHTML = "";
-  Object.entries(counts).forEach(([tech,count]) => {
-    const col = techColor(tech);
-    const chip = document.createElement("div");
-    chip.className = "chip";
-    chip.style.cssText = `color:${col};background:${col}2E;border-color:${col}55`;
-    chip.innerHTML = `${esc(tech)} <span class="n">${count}</span>`;
-    chip.onmouseenter = () => { legendActive = tech; document.body.classList.add("legend-on"); refreshHighlight(); };
-    chip.onmouseleave = () => { legendActive = null; document.body.classList.remove("legend-on"); refreshHighlight(); };
-    lg.appendChild(chip);
-  });
+  const ov = OVERLAYS[overlay];
+  if (ov){
+    const counts = {};
+    diagram().nodes.forEach(n => { const v = ov.value(n); if (v) counts[v] = (counts[v]||0)+1; });
+    const keys = ov.order ? ov.order.filter(k => counts[k]) : Object.keys(counts);
+    keys.forEach(v => {
+      const col = ov.color(v);
+      const chip = document.createElement("div");
+      chip.className = "chip";
+      chip.style.cssText = `color:${col};background:${col}2E;border-color:${col}55`;
+      chip.innerHTML = `${esc(v)} <span class="n">${counts[v]}</span>`;
+      chip.onmouseenter = () => { legendActive = v; refreshHighlight(); };
+      chip.onmouseleave = () => { legendActive = null; refreshHighlight(); };
+      lg.appendChild(chip);
+    });
+  }
   lg.style.display = lg.children.length ? "flex" : "none";
+  updateBars();
 }
+document.querySelectorAll("#overlay-tabs button").forEach(b => {
+  b.onclick = () => { overlay = overlay === b.dataset.ov ? null : b.dataset.ov; legendActive = null; renderLegend(); refreshHighlight(); };
+});
 
 /* ============== selection highlight / dimming ============== */
 function refreshHighlight(){
@@ -171,10 +233,12 @@ function refreshHighlight(){
     connected.add(selected);
     d.edges.forEach((e,i) => { if (e.from===selected || e.to===selected){ hlEdges.add(i); connected.add(e.from); connected.add(e.to); } });
   }
+  const ov = OVERLAYS[overlay];
   document.querySelectorAll(".node").forEach(el => {
     const id = el.dataset.id;
     const dimSel = selected && !connected.has(id);
-    const dimLeg = legendActive && (d.nodes.find(n=>n.id===id)||{}).tech !== legendActive;
+    const node = d.nodes.find(n => n.id === id);
+    const dimLeg = legendActive && ov && (!node || ov.value(node) !== legendActive);
     el.classList.toggle("dim", !!(dimSel || dimLeg));
     el.classList.toggle("selected", id === selected);
   });
@@ -197,24 +261,33 @@ function refLink(r){
   const url = r.url || r, label = r.label || r;
   return `<a class="ref" href="${esc(url)}" target="_blank">${esc(label)}</a>`;
 }
+const METHOD_LABEL = { "manual":"Manual", "iac":"IaC", "ci-cd":"CI/CD", "paas":"PaaS" };
+const DEBT = { 1:["Pristine","#3FE99C"], 2:["Low Debt","#F5B841"], 3:["Medium Debt","#FF8811"], 4:["High Debt","#F07C7F"] };
 function openPanel(n){
   const STATUS_COLOR = { live:"#3FE99C", future:"#CB80F0", deprecated:"#FF8811", removed:"#F07C7F" };
+  const dep = n.deployment;
+  const depHow = dep && (dep.method || dep.tool)
+    ? `<span class="dep-how">${esc([METHOD_LABEL[dep.method] || dep.method, dep.tool].filter(Boolean).join(" · "))}</span>` : "";
+  const debt = DEBT[n.techDebt];
   const rows = [
     ["Type", KIND_LABEL[n.kind] || n.kind],
     ["Scope", n.scope ? n.scope[0].toUpperCase()+n.scope.slice(1) : "Internal"],
     n.tech ? ["Technology", esc(n.tech)] : null,
     n.repo ? ["Repo", `<a class="link" href="${esc(n.repo.url||n.repo)}" target="_blank">${esc(n.repo.name||n.repo)}</a>`] : null,
+    dep ? ["Deployment", esc(dep.target) + depHow] : null,
+    debt ? ["Tech Debt", `<span class="pill"><i style="background:${debt[1]}"></i>${debt[0]}</span>`] : null,
     n.status ? ["Status", `<span class="pill"><i style="background:${STATUS_COLOR[n.status]||"#CFD2D2"}"></i>${esc(n.status[0].toUpperCase()+n.status.slice(1))}</span>`] : null,
   ].filter(Boolean);
   panel.innerHTML =
     `<div class="p-head">` +
-    (n.kind==="actor" ? `<span class="icon">${PERSON.replace('<svg','<svg style="width:22px;height:22px"')}</span>`
-                      : (n.icon ? `<span class="icon">${esc(n.icon)}</span>` : "")) +
+    (n.kind==="actor" ? `<span class="icon">${PERSON.replace('<svg','<svg style="width:22px;height:22px"')}</span>` : iconHTML(n)) +
     `<span class="t">${esc(n.name)}</span><button class="p-close">&#10005;</button></div>` +
     rows.map(([k,v]) => `<div class="row"><span class="k">${k}</span><span class="v">${v}</span></div>`).join("") +
     (n.description ? `<div class="desc">${esc(n.description)}</div>` : "") +
     (n.references && n.references.length
       ? `<div class="refs-t">References</div><div class="refs">${n.references.map(refLink).join("")}</div>` : "") +
+    (dep && dep.links && dep.links.length
+      ? `<div class="refs-t">Deploy links</div><div class="refs">${dep.links.map(refLink).join("")}</div>` : "") +
     (n.childDiagram ? `<span class="open-link" data-target="${esc(n.childDiagram)}">Open diagram &rarr;</span>` : "");
   panel.classList.add("open");
   panel.querySelector(".p-close").onclick = clearSelection;
