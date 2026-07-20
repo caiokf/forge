@@ -124,6 +124,13 @@ body.legend-on .tech-bar { opacity:1; }
 #panel .row .k { width:104px; flex:none; color:var(--rock-400); }
 #panel .row .v { color:var(--rock-200); }
 #panel .desc { padding:12px 0; color:var(--rock-200); font-size:13px; line-height:1.55; }
+#panel a.link { color:var(--accent); text-decoration:none; }
+#panel a.link:hover { text-decoration:underline; }
+#panel .refs-t { margin-top:14px; color:var(--rock-400); font-size:12px; }
+#panel .refs { display:flex; flex-direction:column; gap:5px; margin-top:6px; }
+#panel .refs .ref { font-family:var(--mono); font-size:11px; color:var(--accent);
+                    text-decoration:none; word-break:break-all; line-height:1.4; }
+#panel .refs .ref:hover { text-decoration:underline; }
 #panel .open-link { display:inline-block; margin-top:14px; color:var(--accent); font-size:13px;
                     font-weight:500; cursor:pointer; }
 .pill { display:inline-flex; align-items:center; gap:6px; background:var(--rock-800);

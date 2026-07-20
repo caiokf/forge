@@ -1,6 +1,8 @@
 /* C4 interactive diagram engine.
-   Expects a global MODEL defined before this script loads.
-   Spec: references/html-diagram-design.md */
+   Reads the model from window.C4_MODEL (loaded via c4-model.js, generated
+   from c4-model.json). Spec: references/html-diagram-design.md */
+const MODEL = window.C4_MODEL;
+if (!MODEL) throw new Error("c4-model.js missing or did not set window.C4_MODEL");
 
 /* ========================== palette / helpers ========================== */
 const PALETTE = ["#8CECFF","#588AF7","#3FE99C","#CB80F0","#FF72FC","#F07C7F","#FF8811","#F5B841","#C6ADA3","#CFD2D2"];
@@ -190,12 +192,17 @@ function refreshHighlight(){
 }
 
 /* ========================== details panel ========================== */
+function refLink(r){
+  const url = r.url || r, label = r.label || r;
+  return `<a class="ref" href="${esc(url)}" target="_blank">${esc(label)}</a>`;
+}
 function openPanel(n){
   const STATUS_COLOR = { live:"#3FE99C", future:"#CB80F0", deprecated:"#FF8811", removed:"#F07C7F" };
   const rows = [
     ["Type", KIND_LABEL[n.kind] || n.kind],
     ["Scope", n.scope ? n.scope[0].toUpperCase()+n.scope.slice(1) : "Internal"],
     n.tech ? ["Technology", esc(n.tech)] : null,
+    n.repo ? ["Repo", `<a class="link" href="${esc(n.repo.url||n.repo)}" target="_blank">${esc(n.repo.name||n.repo)}</a>`] : null,
     n.status ? ["Status", `<span class="pill"><i style="background:${STATUS_COLOR[n.status]||"#CFD2D2"}"></i>${esc(n.status[0].toUpperCase()+n.status.slice(1))}</span>`] : null,
   ].filter(Boolean);
   panel.innerHTML =
@@ -205,6 +212,8 @@ function openPanel(n){
     `<span class="t">${esc(n.name)}</span><button class="p-close">&#10005;</button></div>` +
     rows.map(([k,v]) => `<div class="row"><span class="k">${k}</span><span class="v">${v}</span></div>`).join("") +
     (n.description ? `<div class="desc">${esc(n.description)}</div>` : "") +
+    (n.references && n.references.length
+      ? `<div class="refs-t">References</div><div class="refs">${n.references.map(refLink).join("")}</div>` : "") +
     (n.childDiagram ? `<span class="open-link" data-target="${esc(n.childDiagram)}">Open diagram &rarr;</span>` : "");
   panel.classList.add("open");
   panel.querySelector(".p-close").onclick = clearSelection;
@@ -232,8 +241,9 @@ function zoomAt(cx, cy, factor){
 }
 canvas.addEventListener("wheel", e => {
   e.preventDefault();
-  if (e.ctrlKey || e.metaKey) zoomAt(e.clientX, e.clientY, Math.exp(-e.deltaY*0.01));
-  else { const v = view(); v.x -= e.deltaX; v.y -= e.deltaY; applyView(); }
+  // scroll = zoom at cursor (pinch arrives as ctrl+wheel with larger deltas)
+  const factor = Math.exp(-e.deltaY * (e.ctrlKey || e.metaKey ? 0.01 : 0.0022));
+  zoomAt(e.clientX, e.clientY, factor);
 }, { passive:false });
 
 function fit(){

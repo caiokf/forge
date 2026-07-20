@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<!--
+  C4 Interactive Architecture Diagram — static viewer shell.
+
+  This file is copied VERBATIM into the output directory (as index.html)
+  along with diagram.css and diagram.js. The only generated file is the
+  model: c4-model.json (canonical) and c4-model.js (same JSON wrapped as
+  `window.C4_MODEL = ...;` so it loads from file:// without CORS issues).
+
+  Design + interaction spec: references/html-diagram-design.md
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>C4 Architecture</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="diagram.css">
+</head>
+<body>
+
+<div id="canvas">
+  <div id="world">
+    <div id="grid"></div>
+    <svg id="edges">
+      <defs>
+        <marker id="arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+          <path d="M0,0.6 L7.6,4 L0,7.4 Z" fill="#838A8D"/>
+        </marker>
+        <marker id="arrow-hl" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+          <path d="M0,0.6 L7.6,4 L0,7.4 Z" fill="#73E5F6"/>
+        </marker>
+      </defs>
+      <g id="edge-g"></g>
+    </svg>
+    <div id="groups-layer"></div>
+    <div id="labels-layer"></div>
+    <div id="nodes-layer"></div>
+  </div>
+
+  <div class="bar" id="topbar">
+    <button id="nav-back" title="Back">&#8592;</button>
+    <button id="nav-fwd" title="Forward">&#8594;</button>
+    <div class="sep"></div>
+    <div id="crumbs"></div>
+  </div>
+
+  <div class="bar" id="legend"></div>
+
+  <div class="bar" id="zoombar">
+    <button id="z-out">&minus;</button>
+    <span id="zoomlvl">100%</span>
+    <button id="z-in">+</button>
+    <button id="z-fit" title="Fit to view">&#x26F6;</button>
+  </div>
+
+  <div id="panel"></div>
+</div>
+
+<script src="c4-model.js"></script>
+<script src="diagram.js"></script>
+</body>
+</html>
