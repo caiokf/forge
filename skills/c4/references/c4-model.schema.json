@@ -1,0 +1,124 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "c4-model.schema.json",
+  "title": "C4 interactive diagram model",
+  "description": "Schema for c4-model.json consumed by the static diagram viewer (diagram.js). Structural rules only — cross-reference rules (childDiagram/parent keys exist, edge endpoints exist, group ids exist) are checked by the validation script in html-diagram-design.md.",
+  "type": "object",
+  "required": ["title", "diagrams"],
+  "additionalProperties": false,
+  "properties": {
+    "title": { "type": "string", "minLength": 1 },
+    "diagrams": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": { "$ref": "#/$defs/diagram" }
+    }
+  },
+  "$defs": {
+    "diagram": {
+      "type": "object",
+      "required": ["name", "type", "nodes", "edges"],
+      "additionalProperties": false,
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "type": { "enum": ["context", "container", "component", "code"] },
+        "parent": {
+          "description": "Diagram key one level up (breadcrumb); null/absent only for the root diagram.",
+          "type": ["string", "null"]
+        },
+        "nodes": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/node" }
+        },
+        "groups": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/group" }
+        },
+        "edges": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/edge" }
+        }
+      }
+    },
+    "node": {
+      "type": "object",
+      "required": ["id", "kind", "name", "x", "y"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "kind": { "enum": ["system", "app", "store", "component", "actor"] },
+        "name": { "type": "string", "minLength": 1 },
+        "tech": { "type": "string" },
+        "icon": { "type": "string" },
+        "scope": { "enum": ["internal", "external"] },
+        "status": { "enum": ["live", "future", "deprecated", "removed"] },
+        "x": { "type": "number" },
+        "y": { "type": "number" },
+        "group": { "type": "string", "description": "id of the enclosing group box in the same diagram" },
+        "childDiagram": { "type": "string", "description": "diagram key to drill into (magnifier badge)" },
+        "description": { "type": "string" },
+        "repo": { "$ref": "#/$defs/repo" },
+        "references": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/reference" }
+        }
+      }
+    },
+    "group": {
+      "type": "object",
+      "required": ["id", "name", "x", "y", "w", "h"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "name": { "type": "string", "minLength": 1 },
+        "tech": { "type": "string" },
+        "icon": { "type": "string" },
+        "x": { "type": "number" },
+        "y": { "type": "number" },
+        "w": { "type": "number", "exclusiveMinimum": 0 },
+        "h": { "type": "number", "exclusiveMinimum": 0 },
+        "childDiagram": { "type": "string" },
+        "description": { "type": "string" }
+      }
+    },
+    "edge": {
+      "type": "object",
+      "required": ["from", "to"],
+      "additionalProperties": false,
+      "properties": {
+        "from": { "type": "string", "minLength": 1 },
+        "to": { "type": "string", "minLength": 1 },
+        "label": { "type": "string" }
+      }
+    },
+    "repo": {
+      "oneOf": [
+        { "type": "string", "minLength": 1 },
+        {
+          "type": "object",
+          "required": ["name", "url"],
+          "additionalProperties": false,
+          "properties": {
+            "name": { "type": "string", "minLength": 1 },
+            "url": { "type": "string", "minLength": 1 }
+          }
+        }
+      ]
+    },
+    "reference": {
+      "oneOf": [
+        { "type": "string", "minLength": 1 },
+        {
+          "type": "object",
+          "required": ["label", "url"],
+          "additionalProperties": false,
+          "properties": {
+            "label": { "type": "string", "minLength": 1 },
+            "url": { "type": "string", "minLength": 1 }
+          }
+        }
+      ]
+    }
+  }
+}
