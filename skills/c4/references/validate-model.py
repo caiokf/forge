@@ -20,7 +20,10 @@ import json, os, sys
 SCHEMA_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "c4-model.schema.json")
 
 NODE_REQ = {"id", "kind", "name", "x", "y"}
-NODE_KEYS = NODE_REQ | {"tech", "icon", "scope", "status", "group", "childDiagram", "description", "repo", "references"}
+NODE_KEYS = NODE_REQ | {"tech", "icon", "scope", "status", "group", "childDiagram", "description", "repo", "references", "deployment", "techDebt"}
+DEPLOY_REQ = {"target"}
+DEPLOY_KEYS = DEPLOY_REQ | {"method", "tool", "links"}
+METHODS = {"manual", "iac", "ci-cd", "paas"}
 GROUP_REQ = {"id", "name", "x", "y", "w", "h"}
 GROUP_KEYS = GROUP_REQ | {"tech", "icon", "childDiagram", "description"}
 EDGE_REQ = {"from", "to"}
@@ -55,6 +58,18 @@ def structural_fallback(model, errs):
             if n.get("kind") not in KINDS: errs.append(f"{np}.kind: {n.get('kind')!r} invalid")
             if "scope" in n and n["scope"] not in SCOPES: errs.append(f"{np}.scope: {n['scope']!r} invalid")
             if "status" in n and n["status"] not in STATUSES: errs.append(f"{np}.status: {n['status']!r} invalid")
+            if "techDebt" in n and (not isinstance(n["techDebt"], int) or not 1 <= n["techDebt"] <= 4):
+                errs.append(f"{np}.techDebt: {n['techDebt']!r} must be an integer 1-4")
+            if "deployment" in n:
+                dep = n["deployment"]
+                if not isinstance(dep, dict):
+                    errs.append(f"{np}.deployment: must be an object")
+                else:
+                    missing = DEPLOY_REQ - dep.keys(); unknown = dep.keys() - DEPLOY_KEYS
+                    if missing: errs.append(f"{np}.deployment: missing {sorted(missing)}")
+                    if unknown: errs.append(f"{np}.deployment: unknown fields {sorted(unknown)}")
+                    if "method" in dep and dep["method"] not in METHODS:
+                        errs.append(f"{np}.deployment.method: {dep['method']!r} not in {sorted(METHODS)}")
         for i, g in enumerate(d.get("groups", [])):
             gp = f"{p}.groups[{i}]({g.get('id','?')})"
             missing = GROUP_REQ - g.keys(); unknown = g.keys() - GROUP_KEYS
@@ -105,6 +120,7 @@ def link_checks(model, base_dir, errs):
             items = []
             if n.get("repo"): items.append(n["repo"])
             items += n.get("references", [])
+            items += (n.get("deployment") or {}).get("links", [])
             for item in items:
                 url = item.get("url") if isinstance(item, dict) else item
                 if url and not url.startswith(("http://", "https://")):
