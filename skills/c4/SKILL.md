@@ -127,9 +127,9 @@ When asked to generate C4 diagrams **in HTML form**, produce an interactive dril
 | `references/html-diagram-design.md`    | Design tokens, model schema, and interaction spec for HTML output      |
 | `references/c4-model.schema.json`      | JSON Schema for `c4-model.json`                                        |
 | `references/validate-model.py`         | Validator: schema + referential integrity + link existence             |
-| `references/techs.json`                | Technology icon catalog (~2,900 techs) used to auto-resolve node icons |
 | `templates/diagram.html`               | Static viewer shell — copy to output as `index.html`                   |
 | `templates/diagram.css`                | Static stylesheet — copy verbatim                                      |
 | `templates/diagram.js`                 | Static engine (rendering, zoom/pan, drill-down, overlays) — copy verbatim |
-| `templates/techs.js`                   | Static icon catalog asset (`window.C4_TECHS`) — copy verbatim          |
+| `templates/techs.json`                 | Technology icon catalog (~2,900 techs, CDN-hosted icons) — canonical   |
+| `templates/techs.js`                   | Same catalog as static viewer asset (`window.C4_TECHS`) — copy verbatim |
 | `templates/c4-model.js`                | Sample model showing the schema (output overwrites with generated one) |

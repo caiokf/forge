@@ -195,23 +195,23 @@ Notes:
 - `references` items may also be plain strings (rendered as the link label and href).
 - Every diagram other than the root should set `parent`; every node/group that has a corresponding deeper diagram should set `childDiagram` — that is what makes the magnifier drill-down appear.
 
-## Technology Icon Catalog (`references/techs.json`)
+## Technology Icon Catalog (`templates/techs.json`)
 
-~2,900 technologies (AWS/Azure/GCP services, languages, frameworks, databases, SaaS) with brand icon URLs. Shape:
+~2,900 technologies (AWS/Azure/GCP services, languages, frameworks, databases, SaaS) with brand icons hosted on a public CDN (Cloudflare Pages). Shape:
 
 ```jsonc
 {
-  "iconBase": "https://…/icons",
+  "iconBase": "https://<icons-host>/",
   "technologies": [
     { "name": "Amazon Elastic Kubernetes Service (EKS)", "nameShort": "EKS",
       "slugs": ["amazon-elastic-kubernetes-service", "eks", …],
       "color": "orange", "type": "cloud-service", "provider": "aws",
-      "iconDark": "/dark/<id>", "iconLight": "/light/<id>" }
+      "icon": "<id>.png" }
   ]
 }
 ```
 
-Icon image URL = `iconBase + iconDark + ".png?size=64"` (dark-theme variant — right for this dark UI). The static asset `templates/techs.js` is this file wrapped as `window.C4_TECHS = …;` and is copied verbatim into every artifact. When writing `tech` values in the model, prefer names that resolve in this catalog (`PostgreSQL` not `pg16`, `TypeScript` not `TS` — unless the caption text matters more than the icon).
+Icon image URL = `iconBase + icon` (dark-theme variants — right for this dark UI). `templates/techs.json` is the canonical catalog; `templates/techs.js` is the same JSON wrapped as `window.C4_TECHS = …;` and is copied verbatim into every artifact (regenerate it after editing the JSON: `window.C4_TECHS = <json>;`). When writing `tech` values in the model, prefer names that resolve in this catalog (`PostgreSQL` not `pg16`, `TypeScript` not `TS` — unless the caption text matters more than the icon).
 
 ## Deployment & Tech Debt Guidance
 

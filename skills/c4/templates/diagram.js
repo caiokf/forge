@@ -49,7 +49,7 @@ if (window.C4_TECHS) {
 }
 function techIconSrc(tech){
   const t = tech && TECH_INDEX[String(tech).toLowerCase()];
-  return t && t.iconDark ? `${TECH_ICON_BASE}${t.iconDark}.png?size=64` : null;
+  return t && t.icon ? `${TECH_ICON_BASE}${t.icon}` : null;
 }
 function iconHTML(n){
   if (n.icon) return `<span class="icon">${esc(n.icon)}</span>`;
