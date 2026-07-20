@@ -53,6 +53,9 @@ body.legend-on .tech-bar { opacity:1; }
          color:var(--rock-400); font-size:11px; font-weight:500; cursor:pointer; z-index:3; }
 .drill:hover { color:var(--accent); }
 .drill svg { width:13px; height:13px; fill:currentColor; }
+/* reserve headroom for the drill badge so it never overlaps the icon/name */
+.node.has-drill { padding-top:28px; }
+.node.actor.has-drill { padding-top:40px; }
 
 .dots i { position:absolute; width:7px; height:7px; border-radius:50%; background:var(--accent);
           opacity:0; transition:opacity .12s; pointer-events:none; }

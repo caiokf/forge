@@ -58,7 +58,8 @@ function render(){
   d.nodes.forEach(n => {
     const el = document.createElement("div");
     el.dataset.id = n.id;
-    el.className = "node " + n.kind + (n.scope==="external" ? " external" : "") + (n.id===selected ? " selected" : "");
+    el.className = "node " + n.kind + (n.scope==="external" ? " external" : "")
+      + (n.id===selected ? " selected" : "") + (n.childDiagram ? " has-drill" : "");
     el.style.cssText = `left:${n.x}px;top:${n.y}px`;
     const bar = techColor(n.tech);
     const drill = n.childDiagram ? `<span class="drill" data-target="${esc(n.childDiagram)}">${MAGNIFIER}<span>${childCount(n.childDiagram)}</span></span>` : "";
