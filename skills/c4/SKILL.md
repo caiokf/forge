@@ -60,18 +60,28 @@ C4-Documentation/
 ├── c4-component.md            # Level 3: Component index
 ├── c4-component-[name].md     # Level 3: Individual components
 ├── c4-code-[name].md          # Level 4: Code-level docs
-├── c4-diagrams.html           # Optional: interactive HTML diagram (all levels)
+├── c4/                        # Optional: interactive HTML diagram (all levels)
+│   ├── index.html             #   static viewer, copied from skill templates
+│   ├── diagram.css            #   static, copied verbatim
+│   ├── diagram.js             #   static, copied verbatim
+│   ├── c4-model.json          #   GENERATED structured C4 model (canonical)
+│   └── c4-model.js            #   GENERATED: window.C4_MODEL = <json>;
 └── apis/
     └── [container]-api.yaml   # OpenAPI specs
 ```
 
 ## Interactive HTML Output
 
-When asked to generate C4 diagrams **in HTML form**, produce a single self-contained `c4-diagrams.html` holding all levels with drill-down navigation, pan/zoom, and node details — instead of (or alongside) Mermaid diagrams.
+When asked to generate C4 diagrams **in HTML form**, produce an interactive drill-down diagram artifact — instead of (or alongside) Mermaid diagrams.
 
-1. Read `references/html-diagram-design.md` for the design language, tokens, and interaction spec
-2. Start from `templates/c4-diagram.html`: replace the `MODEL` constant with the analyzed architecture, then inline `templates/diagram.css` and `templates/diagram.js` into the file so the artifact is a single portable HTML file
-3. Follow the layout guidance in the reference when assigning node coordinates
+1. **Ask how many levels** the user wants before modeling, unless they already said: 1 = context only, 2 = + containers, 3 = + components, 4 = + code. Model every requested level: each node at level N gets a `childDiagram` at level N+1 whenever the codebase/docs support it, so the magnifier drill-down goes as deep as requested
+2. Read `references/html-diagram-design.md` for the design language, model schema, and interaction spec
+3. Analyze the architecture and write **`c4-model.json`** — the canonical structured model conforming to `references/c4-model.schema.json`. Every internal node at every level (systems, containers, AND components) gets a `repo` link; component-level nodes additionally get `references` (source file/dir links). Use **remote URLs** (GitHub/Bitbucket, from `git remote get-url origin` + default branch, `blob/` for files and `tree/` for dirs); fall back to relative local paths only when no remote exists
+4. **Validate before assembling**: run `python3 references/validate-model.py <out>/c4-model.json --check-links` and fix findings until it prints `VALID` (checks schema conformance, drill-down/edge referential integrity, and that relative links exist on disk)
+5. Assemble the output directory:
+   - Copy `templates/diagram.html` → `<out>/index.html`, and `templates/diagram.css`, `templates/diagram.js` **verbatim** (never edit the copies)
+   - Derive `<out>/c4-model.js` as `window.C4_MODEL = ` + the JSON + `;`
+6. Verify by opening `index.html` in a browser: drill-down from context to the deepest level, click nodes to check Repo/References links resolve
 
 ## Success Criteria
 
@@ -112,7 +122,10 @@ When asked to generate C4 diagrams **in HTML form**, produce a single self-conta
 | -------------------------------------- | ---------------------------------------------------------------------- |
 | `references/workflow-phases.md`        | Detailed tasks and actions for each phase                              |
 | `references/documentation-patterns.md` | C4 documentation templates, Mermaid syntax, and validation checklists  |
-| `references/html-diagram-design.md`    | Design tokens and interaction spec for interactive HTML diagram output |
-| `templates/c4-diagram.html`            | HTML skeleton with embedded sample MODEL (replace, then inline assets) |
-| `templates/diagram.css`                | Diagram stylesheet (design tokens, node/edge/chrome styles)            |
-| `templates/diagram.js`                 | Diagram engine (rendering, pan/zoom, drill-down, selection)            |
+| `references/html-diagram-design.md`    | Design tokens, model schema, and interaction spec for HTML output      |
+| `references/c4-model.schema.json`      | JSON Schema for `c4-model.json`                                        |
+| `references/validate-model.py`         | Validator: schema + referential integrity + link existence             |
+| `templates/diagram.html`               | Static viewer shell — copy to output as `index.html`                   |
+| `templates/diagram.css`                | Static stylesheet — copy verbatim                                      |
+| `templates/diagram.js`                 | Static engine (rendering, zoom/pan, drill-down) — copy verbatim        |
+| `templates/c4-model.js`                | Sample model showing the schema (output overwrites with generated one) |

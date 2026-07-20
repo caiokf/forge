@@ -1,11 +1,24 @@
 # Interactive HTML Diagram Design
 
-Design language and interaction spec for generating C4 diagrams as a single self-contained interactive HTML file. The implementation lives in three template files: `templates/c4-diagram.html` (skeleton + embedded `MODEL`), `templates/diagram.css` (tokens + styles), and `templates/diagram.js` (engine). To generate output: replace `MODEL` with the system being documented, then inline the CSS and JS into the HTML so the artifact is one portable file. This document is the source of truth when adjusting or extending those templates.
+Design language and interaction spec for generating interactive C4 diagram artifacts. The viewer is three **static** template files copied verbatim into the output directory — `templates/diagram.html` (→ `index.html`), `templates/diagram.css`, `templates/diagram.js` — plus one **generated** model: `c4-model.json` (canonical structured data) and `c4-model.js` (the same JSON wrapped as `window.C4_MODEL = ...;` so it loads from `file://`). This document is the source of truth when adjusting or extending those templates.
+
+## Artifact Structure
+
+```
+<output-dir>/
+├── index.html      # copied from templates/diagram.html — never edited
+├── diagram.css     # copied verbatim — never edited
+├── diagram.js      # copied verbatim — never edited
+├── c4-model.json   # GENERATED: the structured C4 model (canonical artifact)
+└── c4-model.js     # GENERATED: "window.C4_MODEL = " + contents of c4-model.json + ";"
+```
+
+Only the model files are project-specific. Regenerating a diagram means rewriting `c4-model.json` and re-deriving `c4-model.js`; viewer updates come from re-copying the three static files from the skill templates.
 
 ## Output Principles
 
-- **One HTML file, zero build steps** — all CSS/JS inline, fonts from Google Fonts CDN with system fallbacks. Opens from disk.
-- **One file holds all levels** — context, container (app), and component diagrams are separate "diagrams" in one embedded model, connected by drill-down navigation.
+- **Zero build steps** — opens from disk via `index.html`; fonts from Google Fonts CDN with system fallbacks.
+- **One model holds all levels** — context, container, and component diagrams are entries in one model, connected by drill-down navigation (magnifier badge on any node/group with a `childDiagram`). Generate as many levels as the user asked for, and give *every* node at level N a child diagram at level N+1 whenever the source material supports it — drill-down depth is the product.
 - **Dark professional aesthetic** — infinite dark canvas with subtle dot grid, card-style nodes, muted edges. Content glows; chrome recedes.
 - **DOM nodes + SVG edges** — nodes are absolutely-positioned divs (easy text/icon layout), edges are one SVG layer underneath (easy curves/arrowheads). Both live in one pan/zoom "world" container.
 
@@ -97,7 +110,7 @@ On node select: connected edges + their labels tint `#73E5F6`; every unconnected
 ### Chrome (floating UI over canvas)
 
 - **Top bar**: floating rounded (8px) bar, fill `#0C0D0D`, height 48px — back/forward arrows, diagram breadcrumb (`Diagrams | <name>`), level badge (`Context` / `Container` / `Component`).
-- **Details panel**: opens on select, right side, 320px, fill `#1B1C1D`, radius 12px, shadow `0 20px 24px -4px rgba(0,0,0,.3)`. Header: icon tile + name. Rows: Type, Scope, Technology, Description, plus "Open diagram →" when the node has a child diagram. Status as a pill (colored dot + label).
+- **Details panel**: opens on select, right side, 320px, fill `#1B1C1D`, radius 12px, shadow `0 20px 24px -4px rgba(0,0,0,.3)`. Header: icon tile + name. Rows: Type, Scope, Technology, **Repo** (accent-colored link to the owning repository), Status as a pill (colored dot + label). Then Description, a **References** list (mono, accent links to source files/dirs — expected on component-level nodes), and "Open diagram →" when the node has a child diagram.
 - **Overlay legend** (bottom-left): a row of chips, one per technology present, `bg = color at 18% alpha`, `1px` border of the color, label + count in the color. Hovering a chip highlights matching nodes (others dim); each node shows a 3px underline bar in its technology color when the legend is active.
 - **Zoom controls** (bottom-right): − / percentage / + / ⛶ fit.
 
@@ -105,9 +118,9 @@ On node select: connected edges + their labels tint `#73E5F6`; every unconnected
 
 | Input                        | Behavior                                                        |
 | ---------------------------- | --------------------------------------------------------------- |
-| Wheel / trackpad scroll      | Pan (both axes)                                                 |
-| `Ctrl`/`Cmd` + wheel, pinch  | Zoom at cursor (0.2×–3×)                                        |
-| Drag empty canvas            | Pan                                                             |
+| Wheel / trackpad scroll      | Zoom at cursor (0.2×–3×)                                        |
+| Pinch (`Ctrl`+wheel)         | Zoom at cursor                                                  |
+| Click + drag empty canvas    | Pan                                                             |
 | Drag node                    | Move node; edges re-route live                                  |
 | Click node                   | Select + details panel + connected-highlight/dim                |
 | Click magnifier badge        | Drill down into child diagram                                   |
@@ -118,35 +131,73 @@ On node select: connected edges + their labels tint `#73E5F6`; every unconnected
 
 Per-diagram view state (pan/zoom) is preserved when navigating between levels. Initial view = fit-to-content with 80px padding.
 
-## Embedded Model Shape
+## Model Schema (`c4-model.json`)
 
-```js
-const MODEL = {
-  title: "Acme Platform",
-  diagrams: {
-    context: {
-      name: "Context Diagram", type: "context", parent: null,
-      nodes: [
-        { id: "user",   kind: "actor",  name: "Customer", x: 80,  y: 120 },
-        { id: "web",    kind: "system", name: "Web App",  tech: "Rails", scope: "internal",
-          icon: "🌐", x: 320, y: 110, childDiagram: "web-app" },
-        { id: "stripe", kind: "system", name: "Stripe",   tech: "Stripe", scope: "external",
-          icon: "💳", x: 620, y: 110 }
+```jsonc
+{
+  "title": "Acme Platform",
+  "diagrams": {
+    "context": {                            // key = diagram id, referenced by childDiagram/parent
+      "name": "Context Diagram",
+      "type": "context",                    // "context" | "container" | "component" | "code"
+      "parent": null,                       // diagram key one level up (breadcrumb), null for root
+      "nodes": [
+        { "id": "user", "kind": "actor", "name": "Customer", "x": 80, "y": 120 },
+        {
+          "id": "web",
+          "kind": "system",                 // "system" | "app" | "store" | "component" | "actor"
+          "name": "Web App",
+          "tech": "Rails",                  // shown in caption + technology legend
+          "scope": "internal",              // "internal" | "external" (external = light card)
+          "icon": "🌐",                     // emoji (or omit)
+          "x": 320, "y": 110,
+          "status": "live",                 // "live" | "future" | "deprecated" | "removed" (optional)
+          "childDiagram": "web-app",        // enables the magnifier drill-down badge
+          "group": "g1",                    // id of enclosing group box (optional)
+          "description": "…",               // details panel prose (optional)
+          "repo": {                         // details panel "Repo" link (optional)
+            "name": "acme/web", "url": "https://github.com/acme/web"
+          },
+          "references": [                   // details panel source links (optional; use on
+            {                               // component/code-level nodes)
+              "label": "src/routes/checkout.ts",
+              "url": "https://github.com/acme/web/blob/main/src/routes/checkout.ts"
+            }
+          ]
+        }
       ],
-      groups: [],
-      edges: [
-        { from: "user", to: "web",    label: "Buys products" },
-        { from: "web",  to: "stripe", label: "Charges cards" }
+      "groups": [                           // boundary boxes, rendered beneath nodes
+        { "id": "g1", "name": "Web App", "tech": "Rails", "icon": "🌐",
+          "x": 260, "y": 80, "w": 560, "h": 300, "childDiagram": "web-app" }
+      ],
+      "edges": [
+        { "from": "user", "to": "web", "label": "Buys products" }   // label optional
       ]
-    },
-    "web-app": {
-      name: "Web App — Container Diagram", type: "container", parent: "context",
-      nodes: [ /* kind: "app" | "store" | "system" | "actor" | "component" */ ],
-      groups: [ { id: "g1", name: "Web App", tech: "Rails", x: 260, y: 80, w: 560, h: 300 } ],
-      edges: []
     }
   }
-};
+}
 ```
+
+Notes:
+- **Prefer remote URLs** for `repo` and `references` — resolve them from the local checkout: `git remote get-url origin` (convert `git@host:org/repo.git` → `https://host/org/repo`) and the default branch from `git symbolic-ref --short refs/remotes/origin/HEAD`. Link files as `<remote>/blob/<branch>/<path>` and directories as `<remote>/tree/<branch>/<path>` (GitHub form; adjust for Bitbucket/GitLab). Fall back to relative local paths only when a repo has no remote.
+- **Every internal node carries `repo`** — systems, containers, and components alike (components inherit their container's repo). Only external-scope nodes and actors go without.
+- `references` items may also be plain strings (rendered as the link label and href).
+- Every diagram other than the root should set `parent`; every node/group that has a corresponding deeper diagram should set `childDiagram` — that is what makes the magnifier drill-down appear.
+
+## Validating the Model
+
+The formal schema is `references/c4-model.schema.json`. Always validate the generated `c4-model.json` **before** assembling/refreshing the artifact:
+
+```bash
+python3 <skill>/references/validate-model.py <out>/c4-model.json --check-links
+```
+
+The script checks three layers and exits non-zero on any finding:
+
+1. **Schema** — required fields, enums (`kind`, `type`, `status`, `scope`), and unknown-field typos, via the `jsonschema` package when installed or an equivalent built-in structural check otherwise
+2. **Cross-references** (not expressible in JSON Schema) — exactly one root diagram; `parent` and `childDiagram` values are real diagram keys; all diagrams reachable from the root via drill-down; node `group` ids exist; edge endpoints exist; no duplicate ids within a diagram
+3. **Links** (with `--check-links`) — relative `repo`/`references` URLs resolve to files/dirs that actually exist, relative to the model's directory
+
+Fix findings in `c4-model.json`, re-run until `VALID`, then regenerate `c4-model.js`.
 
 Layout guidance when generating coordinates: flow top-to-bottom or left-to-right following the primary user journey; ~120–180px gaps between ranks; actors at the periphery; external systems grouped on one side; group boxes sized with ~40px inner padding and headroom for the header row.
